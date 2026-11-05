@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.3)
+cmake_minimum_required(VERSION 3.20)
 project(C_C___Learning_Application C)
 
 set(CMAKE_C_STANDARD 11)
