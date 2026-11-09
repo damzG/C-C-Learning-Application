@@ -4,6 +4,8 @@ project(C_C___Learning_Application C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+option(APP_BUILD_TESTS "Build the unit tests" ON)
+
 include(FetchContent)
 
 # Keep the raylib build small: no bundled examples
@@ -17,6 +19,30 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
-add_executable(C_C___Learning_Application main.c)
+# Logic with no raylib dependency, shared by the app and the tests
+add_library(core STATIC
+        Account.c
+        Levels.c
+)
+target_include_directories(core PUBLIC src)
 
-target_link_libraries(C_C___Learning_Application PRIVATE raylib)
+add_executable(C_C___Learning_Application
+        main.c
+        App.c
+        Ui.c
+        screen_loading.c
+        screen_menu.c
+        screen_profiles.c
+        screen_create.c
+        screen_map.c
+        screen_puzzles.c
+)
+target_include_directories(C_C___Learning_Application PRIVATE src)
+target_link_libraries(C_C___Learning_Application PRIVATE core raylib)
+
+if (APP_BUILD_TESTS)
+    enable_testing()
+    add_executable(test_accounts test_accounts.c)
+    target_link_libraries(test_accounts PRIVATE core)
+    add_test(NAME accounts COMMAND test_accounts)
+endif ()
