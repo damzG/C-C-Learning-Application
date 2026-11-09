@@ -7,6 +7,7 @@
 void AppInit(AppState *app)
 {
     app->current = -1;
+    app->activeLevel = 0;
     app->quit = false;
 
     if (!AccountsLoad(&app->accounts, ACCOUNTS_FILE))
@@ -29,6 +30,7 @@ void AppGoTo(AppState *app, ScreenId screen)
     case SCREEN_PROFILES: ScreenProfilesEnter(app); break;
     case SCREEN_CREATE:   ScreenCreateEnter(app);   break;
     case SCREEN_MAP:      ScreenMapEnter(app);      break;
+    case SCREEN_LESSON:   ScreenLessonEnter(app);   break;
     case SCREEN_PUZZLES:  ScreenPuzzlesEnter(app);  break;
     }
 }
@@ -42,6 +44,7 @@ void AppRunScreen(AppState *app, float dt)
     case SCREEN_PROFILES: ScreenProfilesRun(app, dt); break;
     case SCREEN_CREATE:   ScreenCreateRun(app, dt);   break;
     case SCREEN_MAP:      ScreenMapRun(app, dt);      break;
+    case SCREEN_LESSON:   ScreenLessonRun(app, dt);   break;
     case SCREEN_PUZZLES:  ScreenPuzzlesRun(app, dt);  break;
     }
 }

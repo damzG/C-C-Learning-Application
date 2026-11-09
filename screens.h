@@ -19,6 +19,9 @@ void ScreenCreateRun(AppState *app, float dt);
 void ScreenMapEnter(AppState *app);
 void ScreenMapRun(AppState *app, float dt);
 
+void ScreenLessonEnter(AppState *app);
+void ScreenLessonRun(AppState *app, float dt);
+
 void ScreenPuzzlesEnter(AppState *app);
 void ScreenPuzzlesRun(AppState *app, float dt);
 

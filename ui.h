@@ -21,7 +21,11 @@ void UiDrawCart(float x, float alpha);
 void UiDrawCartAt(float x, float y, float angleDeg, float alpha);
 
 void UiDrawCenteredText(const char *text, int cx, int y, int size, Color color);
-void UiDrawWrappedText(const char *text, Rectangle area, int size, Color color);
+// Returns the height of the text that was drawn.
+float UiDrawWrappedText(const char *text, Rectangle area, int size, Color color);
+
+int UiCodeLineCount(const char *code);
+void UiDrawCodeBlock(const char *code, Rectangle area);
 
 bool UiButton(Rectangle rect, const char *text, bool enabled, float alpha);
 

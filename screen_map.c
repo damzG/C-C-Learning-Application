@@ -3,6 +3,7 @@
 #include "theme.h"
 #include "ui.h"
 #include "levels.h"
+#include "questions.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -224,7 +225,16 @@ static void DrawDetailsPanel(AppState *app, Account *acc, int done, int n)
     const char *startLabel = selected < done ? "Review Lesson" : (selected == done ? "Start Lesson" : "Locked");
     if (UiButton((Rectangle){ x, 520, 312, 52 }, startLabel, unlocked, 1.0f))
     {
-        UiToast("Lesson content is coming soon");
+        if (QuestionCount(selected) == 0)
+        {
+            UiToast("No questions for this level yet");
+        }
+        else
+        {
+            app->activeLevel = selected;
+            AppGoTo(app, SCREEN_LESSON);
+            return;
+        }
     }
 
 #if DEV_TOOLS

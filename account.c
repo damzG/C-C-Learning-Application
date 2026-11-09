@@ -244,6 +244,14 @@ const char *AccountValidate(const AccountStore *store, const Account *a)
     return NULL;
 }
 
+bool AccountCompleteLevel(Account *account, int levelIndex, int xp)
+{
+    if (levelIndex != account->levelsCompleted) return false;
+    account->levelsCompleted++;
+    account->xp += xp;
+    return true;
+}
+
 int AccountsAdd(AccountStore *store, const Account *account)
 {
     if (store->count >= MAX_ACCOUNTS) return -1;

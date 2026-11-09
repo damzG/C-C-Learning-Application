@@ -68,7 +68,7 @@ void UiDrawCenteredText(const char *text, int cx, int y, int size, Color color)
     DrawText(text, cx - MeasureText(text, size) / 2, y, size, color);
 }
 
-void UiDrawWrappedText(const char *text, Rectangle area, int size, Color color)
+float UiDrawWrappedText(const char *text, Rectangle area, int size, Color color)
 {
     char line[256] = "";
     char word[64];
@@ -99,7 +99,50 @@ void UiDrawWrappedText(const char *text, Rectangle area, int size, Color color)
         }
     }
 
-    if (line[0]) DrawText(line, (int)area.x, (int)y, size, color);
+    if (line[0])
+    {
+        DrawText(line, (int)area.x, (int)y, size, color);
+        y += size * 1.4f;
+    }
+    return y - area.y;
+}
+
+int UiCodeLineCount(const char *code)
+{
+    if (code == NULL || code[0] == '\0') return 0;
+
+    int lines = 1;
+    for (const char *p = code; *p; p++)
+    {
+        if (*p == '\n') lines++;
+    }
+    return lines;
+}
+
+void UiDrawCodeBlock(const char *code, Rectangle area)
+{
+    DrawRectangleRounded(area, 0.08f, 8, (Color){ 10, 12, 24, 255 });
+    DrawRectangleRoundedLinesEx(area, 0.08f, 8, 1.0f, Fade(COL_MUTED, 0.4f));
+
+    char line[128];
+    int len = 0;
+    float y = area.y + 12.0f;
+
+    for (const char *p = code; ; p++)
+    {
+        if (*p == '\n' || *p == '\0')
+        {
+            line[len] = '\0';
+            DrawText(line, (int)area.x + 18, (int)y, 20, (Color){ 200, 230, 200, 255 });
+            y += 26.0f;
+            len = 0;
+            if (*p == '\0') break;
+        }
+        else if (len < (int)sizeof(line) - 1)
+        {
+            line[len++] = *p;
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------

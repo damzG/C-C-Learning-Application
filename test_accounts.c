@@ -5,6 +5,7 @@
 
 #include "account.h"
 #include "levels.h"
+#include "questions.h"
 
 static int failures = 0;
 
@@ -115,6 +116,37 @@ int main(void)
     }
     CHECK(LevelGet(-1) == NULL);
     CHECK(LevelGet(LevelCount()) == NULL);
+
+    // Level progress
+    Account player = MakeAccount("player", "Test Player");
+    CHECK(!AccountCompleteLevel(&player, 3, 50));   // still locked
+    CHECK(AccountCompleteLevel(&player, 0, 50));
+    CHECK(!AccountCompleteLevel(&player, 0, 50));   // repeat gives no XP
+    CHECK(player.levelsCompleted == 1 && player.xp == 50);
+
+    // Lesson scoring
+    CHECK(LessonPassMark(3) == 2);
+    CHECK(LessonPassed(2, 3));
+    CHECK(!LessonPassed(1, 3));
+    CHECK(!LessonPassed(0, 0));
+
+    // Every level has a playable lesson and every question is well-formed
+    for (int lv = 0; lv < LevelCount(); lv++)
+    {
+        int n = QuestionCount(lv);
+        CHECK(n >= 3);
+        for (int i = 0; i < n; i++)
+        {
+            const Question *q = QuestionGet(lv, i);
+            CHECK(q != NULL);
+            if (q == NULL) continue;
+            CHECK(q->level == lv);
+            CHECK(q->prompt != NULL && q->explanation != NULL && q->hint != NULL);
+            CHECK(q->correct >= 0 && q->correct < OPTION_COUNT);
+            for (int o = 0; o < OPTION_COUNT; o++) CHECK(q->options[o] != NULL);
+        }
+        CHECK(QuestionGet(lv, n) == NULL);
+    }
 
     remove(path);
 

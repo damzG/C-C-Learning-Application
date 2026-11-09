@@ -23,6 +23,7 @@ FetchContent_MakeAvailable(raylib)
 add_library(core STATIC
         Account.c
         Levels.c
+        questions.c
 )
 target_include_directories(core PUBLIC src)
 
@@ -36,6 +37,8 @@ add_executable(C_C___Learning_Application
         screen_create.c
         screen_map.c
         screen_puzzles.c
+        screen_lesson.c
+        screen_lesson.c
 )
 target_include_directories(C_C___Learning_Application PRIVATE src)
 target_link_libraries(C_C___Learning_Application PRIVATE core raylib)

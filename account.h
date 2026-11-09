@@ -50,6 +50,10 @@ const char *AccountValidate(const AccountStore *store, const Account *account);
 // Returns the new index, or -1 if the store is full.
 int AccountsAdd(AccountStore *store, const Account *account);
 
+// Marks a level finished if it is the next one in order. Returns true when progress
+// moved forward (and XP was added), false for repeats or levels that are still locked.
+bool AccountCompleteLevel(Account *account, int levelIndex, int xp);
+
 void AccountTodayString(char out[DATE_LEN]);
 
 #endif
