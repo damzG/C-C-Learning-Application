@@ -102,7 +102,7 @@ Only data needed for the app is stored, and it stays on your own machine.
 ## Tech Stack
 
 * **Language:** C (C11)
-* **Graphics and input:** Raylib 5.5
+* **Graphics and input:** Raylib 6.2
 * **Build system:** CMake with FetchContent
 * **Data storage:** CSV files
 

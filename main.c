@@ -132,6 +132,7 @@ static bool DrawPlaceholder(const char *title, const char *note)
 
 int main(void)
 {
+    SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_W, SCREEN_H, "C Square Learn");
     SetTargetFPS(60);
 
