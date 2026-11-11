@@ -1,6 +1,7 @@
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "avatar_draw.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -88,6 +89,12 @@ void ScreenCreateRun(AppState *app, float dt)
 
     UiTextBoxUpdate(&boxes[focus]);
     for (int i = 0; i < FIELD_COUNT; i++) UiTextBoxDraw(&boxes[i], i == focus);
+
+    // Live preview of the generated profile picture. It changes as the username is typed.
+    const char *previewName = boxes[FIELD_USERNAME].len > 0 ? boxes[FIELD_USERNAME].text : "?";
+    AvatarDraw(previewName, 920, 170, 160, 1.0f);
+    UiDrawCenteredText("Your profile picture", 1000, 345, 20, RAYWHITE);
+    UiDrawCenteredText("Made from your username", 1000, 372, 16, COL_MUTED);
 
     // Experience selector
     DrawText("Experience level", 440, 478, 18, COL_MUTED);

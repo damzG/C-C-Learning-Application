@@ -2,8 +2,8 @@
 #include "theme.h"
 #include "ui.h"
 #include "levels.h"
+#include "avatar_draw.h"
 
-#include <ctype.h>
 #include <stdio.h>
 
 #define VISIBLE_CARDS 5
@@ -55,12 +55,8 @@ void ScreenProfilesRun(AppState *app, float dt)
         DrawRectangleRounded(card, 0.2f, 8, COL_PANEL);
         DrawRectangleRoundedLinesEx(card, 0.2f, 8, 2.0f, hovered ? COL_ACCENT : Fade(COL_MUTED, 0.4f));
 
-        // Avatar with the first letter of the name
-        Vector2 center = { card.x + 52, card.y + CARD_H / 2 };
-        DrawCircleV(center, 28, COL_ACCENT);
-        char letter[2] = { (char)toupper((unsigned char)a->fullName[0]), '\0' };
-        int lw = MeasureText(letter, 30);
-        DrawText(letter, (int)center.x - lw / 2, (int)center.y - 15, 30, COL_BG);
+        // Generated profile picture
+        AvatarDraw(a->username, (int)card.x + 16, (int)card.y + 12, 64, 1.0f);
 
         DrawText(a->fullName, (int)card.x + 100, (int)card.y + 16, 26, RAYWHITE);
 

@@ -1,6 +1,7 @@
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "avatar_draw.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -26,7 +27,9 @@ void ScreenMenuRun(AppState *app, float dt)
         char line[160];
         snprintf(line, sizeof(line), "Signed in as %s  |  %d XP", acc->fullName, acc->xp);
         int w = MeasureText(line, 20);
-        DrawText(line, SCREEN_W - w - 24, 20, 20, Fade(COL_MUTED, fade));
+        int textX = SCREEN_W - w - 24;
+        AvatarDraw(acc->username, textX - 52, 8, 40, fade);
+        DrawText(line, textX, 20, 20, Fade(COL_MUTED, fade));
     }
 
     float bw = 380.0f, bh = 62.0f;

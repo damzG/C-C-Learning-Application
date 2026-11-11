@@ -39,6 +39,11 @@ add_executable(C_C___Learning_Application
         screen_puzzles.c
         screen_lesson.c
         screen_lesson.c
+        avatar.c
+        avatar.h
+        avatar_draw.c
+        avatar_draw.h
+        test_avatar.c
 )
 target_include_directories(C_C___Learning_Application PRIVATE src)
 target_link_libraries(C_C___Learning_Application PRIVATE core raylib)
