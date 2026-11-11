@@ -120,7 +120,43 @@ static const OrderPuzzle ORDER_PUZZLES[] = {
         "for (int i = 0; i < n; i++) {",
         "    sum += arr[i];",
         "}",
-        "cout << sum;" } }
+        "cout << sum;" } },
+
+    { "Reverse a Number",
+      "Reverse the digits of a number, for example 123 becomes 321.",
+      6,
+      { "int reversed = 0;",
+        "while (n != 0) {",
+        "    reversed = reversed * 10 + n % 10;",
+        "    n /= 10;",
+        "}",
+        "return reversed;" } },
+
+    { "Prime Check",
+      "Test whether a number is prime by trying every divisor up to its square root.",
+      5,
+      { "bool isPrime(int n) {",
+        "    for (int i = 2; i * i <= n; i++)",
+        "        if (n % i == 0) return false;",
+        "    return n > 1;",
+        "}" } },
+
+    { "Right-Angled Triangle",
+      "Print a triangle of A's: one A on the first row, two on the second, and so on.",
+      5,
+      { "for (int row = 1; row <= 4; row++) {",
+        "    for (int col = 1; col <= row; col++)",
+        "        printf(\"A\");",
+        "    printf(\"\\n\");",
+        "}" } },
+
+    { "Rotate Left",
+      "Move every element one place to the left and put the first element at the end.",
+      4,
+      { "int first = arr[0];",
+        "for (int i = 0; i < size - 1; i++)",
+        "    arr[i] = arr[i + 1];",
+        "arr[size - 1] = first;" } }
 };
 
 static int OrderPuzzleCount(void)
@@ -186,7 +222,7 @@ static const BugPuzzle BUG_PUZZLES[] = {
       "This program frees some memory and then keeps using it. Which line is the bug?",
       4,
       { "int *p = new int(10);",
-        "cout << p;",
+        "*p += 5;",
         "delete p;",
         "cout << *p;" },
       3,
@@ -220,7 +256,52 @@ static const BugPuzzle BUG_PUZZLES[] = {
         "*ptr = 42;",
         "cout << \"Done\";" },
       1,
-      "ptr is nullptr, so it points to nothing and writing through it crashes. Make it point at a real int first, for example with new int." }
+      "ptr is nullptr, so it points to nothing and writing through it crashes. Make it point at a real int first, for example with new int." },
+
+    { "Typo in a Name",
+      "This function should reverse a number, but it will not compile. Which line is the bug?",
+      6,
+      { "int reversed = 0;",
+        "while (testNumber != 0) {",
+        "    int digit = testNumber % 10;",
+        "    reversed = reversed * 10 + digt;",
+        "    testNumber /= 10;",
+        "}" },
+      3,
+      "The variable is called digit, but this line uses digt, which was never declared, so the program will not compile. Check the spelling of your names." },
+
+    { "Printing a Number",
+      "This should print the year when it is a leap year. Which line is the bug?",
+      5,
+      { "int year = 2016;",
+        "if (year % 4 == 0)",
+        "    printf(year);",
+        "else",
+        "    printf(\"Not a leap year\");" },
+      2,
+      "printf needs a format string first, then the values to print. The correct call is printf(\"%d\", year);" },
+
+    { "Missing Bracket",
+      "This leap year function will not compile. Which line is the bug?",
+      5,
+      { "bool isLeap(int year) {",
+        "    if (year % 400 == 0) return true;",
+        "    if (year % 100 == 0 return false;",
+        "    return year % 4 == 0;",
+        "}" },
+      2,
+      "The condition in the second if is missing its closing bracket after the 0. Every ( needs a matching )." },
+
+    { "Everything Is Divisible",
+      "This prime check says no for every number from 2 up. Which line is the bug?",
+      5,
+      { "bool isPrime(int n) {",
+        "    for (int i = 2; i <= n; i++)",
+        "        if (n % i == 0) return false;",
+        "    return true;",
+        "}" },
+      1,
+      "When i reaches n, n % i is 0, so every number looks divisible by itself. The loop must stop before n: use i < n, or i * i <= n." }
 };
 
 static int BugPuzzleCount(void)
@@ -248,7 +329,11 @@ static const PairSet PAIR_SETS[] = {
 
     { "Classes and the STL",
       { "this", "constructor", "vector", "map", "template", "struct" },
-      { "pointer to the current object", "runs when an object is made", "resizable array", "key and value pairs", "one function for many types", "groups related data" } }
+      { "pointer to the current object", "runs when an object is made", "resizable array", "key and value pairs", "one function for many types", "groups related data" } },
+
+    { "Lab Array Operations",
+      { "find", "insert", "delete", "reverse", "frequency", "rotate left" },
+      { "index of a value, or -1", "shift elements right", "shift elements left", "swap from both ends", "how often a value appears", "first element goes to the end" } }
 };
 
 static int PairSetCount(void)
