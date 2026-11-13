@@ -26,10 +26,10 @@ void ScreenMenuRun(AppState *app, float dt)
     {
         char line[160];
         snprintf(line, sizeof(line), "Signed in as %s  |  %d XP", acc->fullName, acc->xp);
-        int w = MeasureText(line, 20);
+        int w = UiMeasureText(line, 20);
         int textX = SCREEN_W - w - 24;
         AvatarDraw(acc->username, textX - 52, 8, 40, fade);
-        DrawText(line, textX, 20, 20, Fade(COL_MUTED, fade));
+        UiDrawText(line, textX, 20, 20, Fade(COL_MUTED, fade));
     }
 
     float bw = 380.0f, bh = 62.0f;
@@ -37,7 +37,7 @@ void ScreenMenuRun(AppState *app, float dt)
     float by = 240.0f;
     float step = 80.0f;
 
-    if (UiButton((Rectangle){ bx, by, bw, bh }, acc ? "Continue Learning" : "Start Learning", true, fade))
+    if (UiButtonPrimary((Rectangle){ bx, by, bw, bh }, acc ? "Continue Learning" : "Start Learning", true, fade))
     {
         if (acc)                          AppGoTo(app, SCREEN_MAP);
         else if (app->accounts.count > 0) AppGoTo(app, SCREEN_PROFILES);
@@ -56,5 +56,5 @@ void ScreenMenuRun(AppState *app, float dt)
     if (UiButton((Rectangle){ bx, by + step * 2, bw, bh }, "Puzzle Games", true, fade)) AppGoTo(app, SCREEN_PUZZLES);
     if (UiButton((Rectangle){ bx, by + step * 3, bw, bh }, "Quit", true, fade)) app->quit = true;
 
-    DrawText("v0.2  early development", 20, SCREEN_H - 30, 18, Fade(COL_MUTED, fade));
+    UiDrawText("v0.2  early development", 20, SCREEN_H - 30, 18, Fade(COL_MUTED, fade));
 }

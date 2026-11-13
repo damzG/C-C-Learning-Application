@@ -380,7 +380,7 @@ static void DrawHud(AppState *app)
 
     char title[96];
     snprintf(title, sizeof(title), "Level %d: %s", level + 1, LevelGet(level)->title);
-    DrawText(title, 160, 22, 26, RAYWHITE);
+    UiDrawText(title, 160, 22, 26, RAYWHITE);
 
     if (phase != PHASE_RESULT)
     {
@@ -399,7 +399,7 @@ static void DrawHud(AppState *app)
             else                   snprintf(prog, sizeof(prog), "Coding challenge");
             filled = (float)(total + codeIndex) + ((codeSolved || codeRevealed) ? 1.0f : 0.0f);
         }
-        DrawText(prog, 940, 14, 18, COL_MUTED);
+        UiDrawText(prog, 940, 14, 18, COL_MUTED);
 
         Rectangle bar = { 940, 42, 300, 12 };
         DrawRectangleRounded(bar, 0.5f, 8, COL_BG);
@@ -418,9 +418,9 @@ static void RunQuestion(AppState *app)
 
     Color tagColor = (q->kind == Q_BUG) ? COL_ERROR : (q->kind == Q_OUTPUT ? COL_CYAN : COL_ACCENT);
     const char *tag = QuestionKindName(q->kind);
-    int tagW = MeasureText(tag, 16) + 28;
+    int tagW = UiMeasureText(tag, 16) + 28;
     DrawRectangleRounded((Rectangle){ 80, 92, (float)tagW, 28 }, 0.5f, 8, Fade(tagColor, 0.25f));
-    DrawText(tag, 94, 98, 16, tagColor);
+    UiDrawText(tag, 94, 98, 16, tagColor);
 
     float y = 132;
     y += UiDrawWrappedText(q->prompt, (Rectangle){ 80, y, 1120, 80 }, 24, RAYWHITE) + 6;
@@ -460,9 +460,9 @@ static void RunQuestion(AppState *app)
         Vector2 badge = { r.x + 32, r.y + 26 };
         DrawCircleV(badge, 16, Fade(border, 0.9f));
         char letter[2] = { (char)('A' + i), '\0' };
-        DrawText(letter, (int)badge.x - MeasureText(letter, 20) / 2, (int)badge.y - 10, 20, COL_BG);
+        UiDrawText(letter, (int)badge.x - UiMeasureText(letter, 20) / 2, (int)badge.y - 10, 20, COL_BG);
 
-        DrawText(q->options[i], (int)r.x + 66, (int)r.y + 15, 22, dim ? COL_MUTED : RAYWHITE);
+        UiDrawText(q->options[i], (int)r.x + 66, (int)r.y + 15, 22, dim ? COL_MUTED : RAYWHITE);
 
         if (!answered && ((hovered && IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ONE + i)))
         {
@@ -484,7 +484,7 @@ static void RunQuestion(AppState *app)
         }
         else
         {
-            DrawText("Choose an answer, or press 1 to 4.", 100, 668, 20, COL_MUTED);
+            UiDrawText("Choose an answer, or press 1 to 4.", 100, 668, 20, COL_MUTED);
         }
 
         if (UiButton((Rectangle){ 1020, 653, 170, 50 }, "Show hint", !hintShown, 1.0f)) hintShown = true;
@@ -492,7 +492,7 @@ static void RunQuestion(AppState *app)
     else
     {
         bool ok = right[qIndex];
-        DrawText(ok ? "Correct!" : "Not quite.", 100, 654, 22, ok ? COL_DONE : COL_ERROR);
+        UiDrawText(ok ? "Correct!" : "Not quite.", 100, 654, 22, ok ? COL_DONE : COL_ERROR);
         UiDrawWrappedText(q->explanation, (Rectangle){ 100, 682, 900, 24 }, 16, RAYWHITE);
 
         const char *nextLabel = (qIndex + 1 < total) ? "Next" : (numChallenges > 0 ? "Challenge" : "See result");
@@ -517,7 +517,7 @@ static float DrawCodeLines(const char *code, float x, float y)
         if (*p == '\n' || *p == '\0')
         {
             line[len] = '\0';
-            DrawText(line, (int)x, (int)y + 3, 20, (Color){ 200, 230, 200, 255 });
+            UiDrawText(line, (int)x, (int)y + 3, 20, (Color){ 200, 230, 200, 255 });
             y += CODE_LINE_H;
             len = 0;
             if (*p == '\0') break;
@@ -582,9 +582,9 @@ static void RunCode(AppState *app)
 
     char tag[40] = "CODING CHALLENGE";
     if (numChallenges > 1) snprintf(tag, sizeof(tag), "CODING CHALLENGE %d OF %d", codeIndex + 1, numChallenges);
-    int tagW = MeasureText(tag, 16) + 28;
+    int tagW = UiMeasureText(tag, 16) + 28;
     DrawRectangleRounded((Rectangle){ 80, 92, (float)tagW, 28 }, 0.5f, 8, Fade(COL_CYAN, 0.25f));
-    DrawText(tag, 94, 98, 16, COL_CYAN);
+    UiDrawText(tag, 94, 98, 16, COL_CYAN);
 
     float y = 132;
     y += UiDrawWrappedText(c->task, (Rectangle){ 80, y, 1120, 80 }, 24, RAYWHITE) + 10;
@@ -611,7 +611,7 @@ static void RunCode(AppState *app)
     DrawRectangleRounded(bottom, 0.2f, 8, COL_PANEL);
 
     if (codeNote[0]) UiDrawWrappedText(codeNote, (Rectangle){ 100, 656, 720, 40 }, 18, codeNoteColor);
-    else             DrawText("Type the missing line, then press Enter or Check.", 100, 668, 20, COL_MUTED);
+    else             UiDrawText("Type the missing line, then press Enter or Check.", 100, 668, 20, COL_MUTED);
 
     // One button is the hint first, then (after two wrong tries) the answer
     const char *helpLabel = codeHintShown ? "Answer" : "Show hint";

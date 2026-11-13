@@ -513,8 +513,8 @@ static void DrawCodeRow(Rectangle r, int number, const char *text, Color fill, C
 
     char num[8];
     snprintf(num, sizeof(num), "%d", number);
-    DrawText(num, (int)r.x + 18, (int)r.y + 13, 20, COL_MUTED);
-    DrawText(text, (int)r.x + 64, (int)r.y + 12, 22, CODE_TEXT);
+    UiDrawText(num, (int)r.x + 18, (int)r.y + 13, 20, COL_MUTED);
+    UiDrawText(text, (int)r.x + 64, (int)r.y + 12, 22, CODE_TEXT);
 }
 
 // ---------------------------------------------------------------------------
@@ -546,7 +546,7 @@ static void RunHub(AppState *app)
         Vector2 badge = { r.x + r.width / 2, r.y + 70 };
         DrawCircleV(badge, 38, colors[i]);
         char num[2] = { (char)('1' + i), '\0' };
-        DrawText(num, (int)badge.x - MeasureText(num, 40) / 2, (int)badge.y - 20, 40, COL_BG);
+        UiDrawText(num, (int)badge.x - UiMeasureText(num, 40) / 2, (int)badge.y - 20, 40, COL_BG);
 
         UiDrawCenteredText(titles[i], (int)(r.x + r.width / 2), (int)r.y + 130, 30, RAYWHITE);
         UiDrawWrappedText(blurbs[i], (Rectangle){ r.x + 28, r.y + 180, r.width - 56, 100 }, 20, COL_MUTED);
@@ -710,12 +710,12 @@ static void RunBug(void)
 
     if (!answered)
     {
-        DrawText("Click the line that contains the bug.", (int)panel.x + 24, (int)panel.y + 36, 22, COL_MUTED);
+        UiDrawText("Click the line that contains the bug.", (int)panel.x + 24, (int)panel.y + 36, 22, COL_MUTED);
     }
     else
     {
         bool ok = (bugChosen == p->bugLine);
-        DrawText(ok ? "Found it!" : "Not that one. The bug is the green line.", (int)panel.x + 24, (int)panel.y + 14, 22, ok ? COL_DONE : COL_ERROR);
+        UiDrawText(ok ? "Found it!" : "Not that one. The bug is the green line.", (int)panel.x + 24, (int)panel.y + 14, 22, ok ? COL_DONE : COL_ERROR);
         UiDrawWrappedText(p->explanation, (Rectangle){ panel.x + 24, panel.y + 46, panel.width - 48, 50 }, 18, RAYWHITE);
     }
 
@@ -786,7 +786,7 @@ static void RunMatch(float dt)
         {
             int pair = MatchPairOf(&board, i);
             const char *text = side == 0 ? set->terms[pair] : set->meanings[pair];
-            float textY = MeasureText(text, 20) <= (int)(r.width - 32) ? r.y + 40 : r.y + 24;
+            float textY = UiMeasureText(text, 20) <= (int)(r.width - 32) ? r.y + 40 : r.y + 24;
             UiDrawWrappedText(text, (Rectangle){ r.x + 16, textY, r.width - 32, 60 }, 20, RAYWHITE);
         }
         else

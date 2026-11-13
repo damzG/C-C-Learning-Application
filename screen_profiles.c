@@ -58,18 +58,18 @@ void ScreenProfilesRun(AppState *app, float dt)
         // Generated profile picture
         AvatarDraw(a->username, (int)card.x + 16, (int)card.y + 12, 64, 1.0f);
 
-        DrawText(a->fullName, (int)card.x + 100, (int)card.y + 16, 26, RAYWHITE);
+        UiDrawText(a->fullName, (int)card.x + 100, (int)card.y + 16, 26, RAYWHITE);
 
         char detail[160];
         snprintf(detail, sizeof(detail), "@%s  |  %s  |  Level %d of %d",
                  a->username, ExperienceName(a->experience),
                  a->levelsCompleted < LevelCount() ? a->levelsCompleted + 1 : LevelCount(),
                  LevelCount());
-        DrawText(detail, (int)card.x + 100, (int)card.y + 50, 18, COL_MUTED);
+        UiDrawText(detail, (int)card.x + 100, (int)card.y + 50, 18, COL_MUTED);
 
         char xp[32];
         snprintf(xp, sizeof(xp), "%d XP", a->xp);
-        DrawText(xp, (int)(card.x + card.width - MeasureText(xp, 24) - 24), (int)card.y + 32, 24, COL_CYAN);
+        UiDrawText(xp, (int)(card.x + card.width - UiMeasureText(xp, 24) - 24), (int)card.y + 32, 24, COL_CYAN);
 
         if (hovered && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
         {

@@ -97,7 +97,7 @@ void ScreenCreateRun(AppState *app, float dt)
     UiDrawCenteredText("Made from your username", 1000, 372, 16, COL_MUTED);
 
     // Experience selector
-    DrawText("Experience level", 440, 478, 18, COL_MUTED);
+    UiDrawText("Experience level", 440, 478, 18, COL_MUTED);
     for (int e = 0; e < EXP_COUNT; e++)
     {
         Rectangle r = { 440.0f + e * 137.0f, 502, 126, 44 };
@@ -108,15 +108,15 @@ void ScreenCreateRun(AppState *app, float dt)
         DrawRectangleRoundedLinesEx(r, 0.3f, 8, 2.0f, (selected || hovered) ? COL_ACCENT : Fade(COL_MUTED, 0.5f));
 
         const char *name = ExperienceName(e);
-        int tw = MeasureText(name, 18);
-        DrawText(name, (int)(r.x + (r.width - tw) / 2), (int)r.y + 13, 18, selected ? COL_BG : RAYWHITE);
+        int tw = UiMeasureText(name, 18);
+        UiDrawText(name, (int)(r.x + (r.width - tw) / 2), (int)r.y + 13, 18, selected ? COL_BG : RAYWHITE);
 
         if (hovered && IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) experience = e;
     }
 
     if (errorMessage[0]) UiDrawCenteredText(errorMessage, SCREEN_W / 2, 560, 20, COL_ERROR);
 
-    if (UiButton((Rectangle){ 440, 592, 400, 54 }, "Create Profile", true, 1.0f) || IsKeyPressed(KEY_ENTER))
+    if (UiButtonPrimary((Rectangle){ 440, 592, 400, 54 }, "Create Profile", true, 1.0f) || IsKeyPressed(KEY_ENTER))
     {
         Submit(app);
     }

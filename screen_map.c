@@ -104,8 +104,8 @@ static void DrawNode(int i, int done, bool isSelected, float t)
 
         char num[8];
         snprintf(num, sizeof(num), "%d", i + 1);
-        int w = MeasureText(num, 30);
-        DrawText(num, (int)x - w / 2, (int)y - 15, 30, COL_BG);
+        int w = UiMeasureText(num, 30);
+        UiDrawText(num, (int)x - w / 2, (int)y - 15, 30, COL_BG);
     }
     else
     {
@@ -176,22 +176,22 @@ static void DrawHud(AppState *app, Account *acc, int done, int n)
         AppGoTo(app, SCREEN_MENU);
     }
 
-    DrawText(acc->fullName, 170, 18, 24, RAYWHITE);
+    UiDrawText(acc->fullName, 170, 18, 24, RAYWHITE);
     char sub[96];
     snprintf(sub, sizeof(sub), "@%s  |  %s", acc->username, ExperienceName(acc->experience));
-    DrawText(sub, 170, 48, 16, COL_MUTED);
+    UiDrawText(sub, 170, 48, 16, COL_MUTED);
 
     // Progress bar and XP
     char prog[32];
     snprintf(prog, sizeof(prog), "%d / %d levels", done, n);
-    DrawText(prog, 800, 16, 18, COL_MUTED);
+    UiDrawText(prog, 800, 16, 18, COL_MUTED);
     Rectangle bar = { 800, 44, 250, 14 };
     DrawRectangleRounded(bar, 0.5f, 8, COL_BG);
     if (done > 0) DrawRectangleRounded((Rectangle){ bar.x, bar.y, bar.width * done / n, bar.height }, 0.5f, 8, COL_DONE);
 
     char xp[32];
     snprintf(xp, sizeof(xp), "%d XP", acc->xp);
-    DrawText(xp, 1100, 26, 28, COL_CYAN);
+    UiDrawText(xp, 1100, 26, 28, COL_CYAN);
 }
 
 static void DrawDetailsPanel(AppState *app, Account *acc, int done, int n)
@@ -202,24 +202,24 @@ static void DrawDetailsPanel(AppState *app, Account *acc, int done, int n)
     const Level *level = LevelGet(selected);
     float x = panel.x + 24;
 
-    DrawText(SectionName(level->section), (int)x, 124, 18, SectionColor(level->section));
-    DrawText(level->title, (int)x, 152, 28, RAYWHITE);
+    UiDrawText(SectionName(level->section), (int)x, 124, 18, SectionColor(level->section));
+    UiDrawText(level->title, (int)x, 152, 28, RAYWHITE);
 
     char line[64];
     snprintf(line, sizeof(line), "Level %d of %d", selected + 1, n);
-    DrawText(line, (int)x, 192, 18, COL_MUTED);
+    UiDrawText(line, (int)x, 192, 18, COL_MUTED);
 
     UiDrawWrappedText(level->summary, (Rectangle){ x, 232, 312, 200 }, 20, RAYWHITE);
 
     snprintf(line, sizeof(line), "Reward: +%d XP", level->xp);
-    DrawText(line, (int)x, 440, 20, COL_CYAN);
+    UiDrawText(line, (int)x, 440, 20, COL_CYAN);
 
     const char *status;
     Color statusColor;
     if (selected < done)        { status = "Completed";  statusColor = COL_DONE; }
     else if (selected == done)  { status = "Ready to start"; statusColor = COL_ACCENT; }
     else                        { status = "Locked: finish the earlier levels first"; statusColor = COL_MUTED; }
-    DrawText(status, (int)x, 472, 18, statusColor);
+    UiDrawText(status, (int)x, 472, 18, statusColor);
 
     bool unlocked = selected <= done;
     const char *startLabel = selected < done ? "Review Lesson" : (selected == done ? "Start Lesson" : "Locked");

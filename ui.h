@@ -15,6 +15,17 @@ typedef struct {
     const char *placeholder;
 } UiTextBox;
 
+// ---- Text. Drop-in replacements for raylib's DrawText and MeasureText that use the
+// project fonts (Poppins for text, IBM Plex Mono for code). Text of size 28 and above
+// is drawn semi-bold automatically so headings stand out.
+void UiDrawText(const char *text, int x, int y, int size, Color color);
+int UiMeasureText(const char *text, int size);
+void UiDrawMono(const char *text, int x, int y, int size, Color color);
+int UiMeasureMono(const char *text, int size);
+
+// Call once before CloseWindow to free the loaded fonts.
+void UiShutdown(void);
+
 void UiDrawLogo(int cx, int cy, int size, float alpha);
 void UiDrawTrack(float alpha);
 void UiDrawCart(float x, float alpha);
@@ -28,6 +39,8 @@ int UiCodeLineCount(const char *code);
 void UiDrawCodeBlock(const char *code, Rectangle area);
 
 bool UiButton(Rectangle rect, const char *text, bool enabled, float alpha);
+// The main call to action on a screen: solid accent colour.
+bool UiButtonPrimary(Rectangle rect, const char *text, bool enabled, float alpha);
 
 void UiTextBoxInit(UiTextBox *box, Rectangle rect, const char *label, const char *placeholder);
 void UiTextBoxClear(UiTextBox *box);

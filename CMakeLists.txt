@@ -45,6 +45,9 @@ add_executable(C_C___Learning_Application
         avatar_draw.h
         test_avatar.c
 )
+#add_custom_command(TARGET C_C___Learning_Application POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_directory
+#        ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:C_C___Learning_Application>/assets)
 target_include_directories(C_C___Learning_Application PRIVATE src)
 target_link_libraries(C_C___Learning_Application PRIVATE core raylib)
 
