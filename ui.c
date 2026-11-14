@@ -220,10 +220,24 @@ float UiDrawWrappedText(const char *text, Rectangle area, int size, Color color)
 
     while (*p)
     {
+        // A line break ends the current line. Two in a row leave a blank line.
+        if (*p == '\n')
+        {
+            if (line[0])
+            {
+                UiDrawText(line, (int)area.x, (int)y, size, color);
+                line[0] = '\0';
+            }
+            y += size * 1.4f;
+            p++;
+            continue;
+        }
+
         while (*p == ' ') p++;
+        if (*p == '\n') continue;
 
         int wl = 0;
-        while (*p && *p != ' ' && wl < 63) word[wl++] = *p++;
+        while (*p && *p != ' ' && *p != '\n' && wl < 63) word[wl++] = *p++;
         word[wl] = '\0';
         if (wl == 0) break;
 
@@ -319,7 +333,7 @@ static bool DrawButton(Rectangle r, const char *text, bool enabled, float alpha,
 
     const int fontSize = 22;
     int tw = MeasureWithStyle(text, fontSize, STYLE_BOLD);
-    DrawWithStyle(text, (int)(r.x + (r.width - tw) / 2), (int)(r.y + (r.height - fontSize * TEXT_SCALE) / 2) - 3, fontSize, textCol, STYLE_BOLD);
+    DrawWithStyle(text, (int)(r.x + (r.width - tw) / 2), (int)(r.y + (r.height - fontSize * TEXT_SCALE) / 2), fontSize, textCol, STYLE_BOLD);
 
     return hovered && IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
 }

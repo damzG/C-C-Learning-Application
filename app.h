@@ -12,6 +12,8 @@ typedef enum {
     SCREEN_CREATE,
     SCREEN_MAP,
     SCREEN_LESSON,
+    SCREEN_PRACTICE,
+    SCREEN_CODE,
     SCREEN_PUZZLES
 } ScreenId;
 
@@ -20,6 +22,7 @@ typedef struct {
     AccountStore accounts;
     int current;       // index of the signed in account, or -1
     int activeLevel;   // level being played in the lesson screen
+    int activeProblem; // problem open in the code practice screen
     bool quit;
 } AppState;
 

@@ -53,8 +53,9 @@ void ScreenMenuRun(AppState *app, float dt)
         AppGoTo(app, app->accounts.count > 0 ? SCREEN_PROFILES : SCREEN_CREATE);
     }
 
-    if (UiButton((Rectangle){ bx, by + step * 2, bw, bh }, "Puzzle Games", true, fade)) AppGoTo(app, SCREEN_PUZZLES);
-    if (UiButton((Rectangle){ bx, by + step * 3, bw, bh }, "Quit", true, fade)) app->quit = true;
+    if (UiButton((Rectangle){ bx, by + step * 2, bw, bh }, "Code Practice", true, fade)) AppGoTo(app, SCREEN_PRACTICE);
+    if (UiButton((Rectangle){ bx, by + step * 3, bw, bh }, "Puzzle Games", true, fade)) AppGoTo(app, SCREEN_PUZZLES);
+    if (UiButton((Rectangle){ bx, by + step * 4, bw, bh }, "Quit", true, fade)) app->quit = true;
 
     UiDrawText("v0.2  early development", 20, SCREEN_H - 30, 18, Fade(COL_MUTED, fade));
 }

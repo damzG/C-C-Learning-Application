@@ -24,6 +24,9 @@ add_library(core STATIC
         Account.c
         Levels.c
         questions.c
+        problems.c
+        judge.c
+        practice_progress.c
 )
 target_include_directories(core PUBLIC src)
 
@@ -44,10 +47,20 @@ add_executable(C_C___Learning_Application
         avatar_draw.c
         avatar_draw.h
         test_avatar.c
+        problems.c
+        problems.h
+        judge.c
+        judge.h
+        practice_progress.c
+        practice_progress.h
+        editor.c
+        editor.h
+        screen_practice.c
+        screen_code.c
 )
-#add_custom_command(TARGET C_C___Learning_Application POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy_directory
-#        ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:C_C___Learning_Application>/assets)
+add_custom_command(TARGET C_C___Learning_Application POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:C_C___Learning_Application>/assets)
 target_include_directories(C_C___Learning_Application PRIVATE src)
 target_link_libraries(C_C___Learning_Application PRIVATE core raylib)
 

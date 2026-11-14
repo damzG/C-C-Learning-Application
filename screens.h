@@ -22,6 +22,12 @@ void ScreenMapRun(AppState *app, float dt);
 void ScreenLessonEnter(AppState *app);
 void ScreenLessonRun(AppState *app, float dt);
 
+void ScreenPracticeEnter(AppState *app);
+void ScreenPracticeRun(AppState *app, float dt);
+
+void ScreenCodeEnter(AppState *app);
+void ScreenCodeRun(AppState *app, float dt);
+
 void ScreenPuzzlesEnter(AppState *app);
 void ScreenPuzzlesRun(AppState *app, float dt);
 

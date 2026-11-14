@@ -7,4 +7,10 @@ cmake-build-*/
 .vscode/
 
 # Local player data (contains names and emails)
-accounts.csv
+accounts.
+
+practice.csv
+c2_run*
+c2_in.txt
+c2_out.txt
+c2_compile.txt
