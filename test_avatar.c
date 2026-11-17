@@ -26,7 +26,7 @@ static unsigned long Signature(const AvatarPattern *p)
     return sig * 16777216UL + ((unsigned long)p->r << 16) + ((unsigned long)p->g << 8) + p->b;
 }
 
-int test(void)
+int main(void)
 {
     // Same name, same picture
     AvatarPattern a, b;

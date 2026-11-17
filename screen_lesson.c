@@ -4,6 +4,8 @@
 #include "ui.h"
 #include "levels.h"
 #include "questions.h"
+#include "editor.h"
+#include "panda.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -228,7 +230,7 @@ static void StripSpaces(const char *src, char *dst, size_t size)
 
 static CheckResult CheckChallenge(const Challenge *c, const char *typed)
 {
-    char got[160], want[160];
+    char got[1024], want[1024];
     StripSpaces(typed, got, sizeof(got));
 
     for (int i = 0; i < 8 && c->accepted[i] != NULL; i++)
@@ -273,7 +275,7 @@ static int xpEarned;
 static int numChallenges;                       // challenges in this level
 static int codeIndex;                           // the one being solved now
 static bool codeResult[MAX_LEVEL_CHALLENGES];   // solved without showing the answer
-static UiTextBox codeBox;
+static Editor codeEd;   // multi-line editor: indentation, braces and several lines
 static int attempts;
 static bool codeSolved;
 static bool codeRevealed;
@@ -290,7 +292,8 @@ static void SetNote(Color color, const char *text)
 // Clears the text box and feedback for the challenge about to be played
 static void StartChallenge(void)
 {
-    UiTextBoxInit(&codeBox, (Rectangle){ 0, 0, 0, 0 }, "", "type the missing line here");
+    EditorInit(&codeEd, (Rectangle){ 0, 0, 100, 100 });
+    EditorSetText(&codeEd, "");
     attempts = 0;
     codeSolved = false;
     codeRevealed = false;
@@ -473,6 +476,8 @@ static void RunQuestion(AppState *app)
     // Bottom panel: hint before answering, feedback after
     Rectangle panel = { 80, 646, 1120, 64 };
     DrawRectangleRounded(panel, 0.2f, 8, COL_PANEL);
+    PandaMood qMood = answered ? (right[qIndex] ? PANDA_HAPPY : PANDA_SAD) : (hintShown ? PANDA_THINK : PANDA_IDLE);
+    PandaDraw(92, 650, 56, qMood, 1.0f);
 
     if (!answered)
     {
@@ -480,11 +485,11 @@ static void RunQuestion(AppState *app)
         {
             char hint[200];
             snprintf(hint, sizeof(hint), "Hint: %s", q->hint);
-            UiDrawWrappedText(hint, (Rectangle){ 100, 668, 880, 40 }, 20, COL_CYAN);
+            UiDrawWrappedText(hint, (Rectangle){ 160, 658, 840, 44 }, 20, COL_CYAN);
         }
         else
         {
-            UiDrawText("Choose an answer, or press 1 to 4.", 100, 668, 20, COL_MUTED);
+            UiDrawText("Choose an answer, or press 1 to 4.", 160, 668, 20, COL_MUTED);
         }
 
         if (UiButton((Rectangle){ 1020, 653, 170, 50 }, "Show hint", !hintShown, 1.0f)) hintShown = true;
@@ -492,8 +497,8 @@ static void RunQuestion(AppState *app)
     else
     {
         bool ok = right[qIndex];
-        UiDrawText(ok ? "Correct!" : "Not quite.", 100, 654, 22, ok ? COL_DONE : COL_ERROR);
-        UiDrawWrappedText(q->explanation, (Rectangle){ 100, 682, 900, 24 }, 16, RAYWHITE);
+        UiDrawText(ok ? "Correct!" : "Not quite.", 160, 654, 22, ok ? COL_DONE : COL_ERROR);
+        UiDrawWrappedText(q->explanation, (Rectangle){ 160, 682, 840, 24 }, 16, RAYWHITE);
 
         const char *nextLabel = (qIndex + 1 < total) ? "Next" : (numChallenges > 0 ? "Challenge" : "See result");
         if (UiButton((Rectangle){ 1020, 653, 170, 50 }, nextLabel, true, 1.0f) || IsKeyPressed(KEY_ENTER))
@@ -517,7 +522,7 @@ static float DrawCodeLines(const char *code, float x, float y)
         if (*p == '\n' || *p == '\0')
         {
             line[len] = '\0';
-            UiDrawText(line, (int)x, (int)y + 3, 20, (Color){ 200, 230, 200, 255 });
+            UiDrawMono(line, (int)x, (int)y + 3, 18, (Color){ 214, 226, 255, 255 });
             y += CODE_LINE_H;
             len = 0;
             if (*p == '\0') break;
@@ -532,13 +537,13 @@ static float DrawCodeLines(const char *code, float x, float y)
 
 static void CheckCode(const Challenge *c)
 {
-    if (codeBox.len == 0)
+    if (codeEd.len == 0)
     {
         SetNote(COL_MUTED, "Type your answer first.");
         return;
     }
 
-    CheckResult result = CheckChallenge(c, codeBox.text);
+    CheckResult result = CheckChallenge(c, codeEd.text);
     if (result == CHECK_RIGHT)
     {
         codeSolved = true;
@@ -564,8 +569,7 @@ static void CheckCode(const Challenge *c)
 static void RevealAnswer(const Challenge *c)
 {
     codeRevealed = true;
-    snprintf(codeBox.text, TEXTBOX_LEN, "%s", c->accepted[0]);
-    codeBox.len = (int)strlen(codeBox.text);
+    EditorSetText(&codeEd, c->accepted[0]);
     SetNote(COL_ACCENT, "Answer shown. A revealed answer does not count towards passing.");
 }
 
@@ -589,29 +593,37 @@ static void RunCode(AppState *app)
     float y = 132;
     y += UiDrawWrappedText(c->task, (Rectangle){ 80, y, 1120, 80 }, 24, RAYWHITE) + 10;
 
-    // Code panel: the lines before, the box where the student types, the lines after
+    // Code panel: the lines before, the editor where the student types, the lines after.
+    // The editor takes whatever height is left, so several lines (with indentation,
+    // loops or conditions) fit comfortably.
     int nBefore = UiCodeLineCount(c->before);
     int nAfter = UiCodeLineCount(c->after);
-    Rectangle panel = { 80, y, 1120, (nBefore + nAfter) * CODE_LINE_H + CODE_BOX_H + 24.0f };
+    float fixedH = (nBefore + nAfter) * CODE_LINE_H + 24.0f;
+    float editH = 632.0f - y - fixedH;
+    if (editH > 280.0f) editH = 280.0f;
+    if (editH < 130.0f) editH = 130.0f;
+    Rectangle panel = { 80, y, 1120, fixedH + editH };
     DrawRectangleRounded(panel, 0.04f, 8, (Color){ 10, 12, 24, 255 });
     DrawRectangleRoundedLinesEx(panel, 0.04f, 8, 1.0f, Fade(COL_MUTED, 0.4f));
 
     float cy = panel.y + 12.0f;
     cy = DrawCodeLines(c->before, panel.x + 18, cy);
 
-    codeBox.rect = (Rectangle){ panel.x + 40, cy + 4, panel.width - 80, CODE_BOX_H - 8 };
-    cy += CODE_BOX_H;
+    codeEd.rect = (Rectangle){ panel.x + 18, cy + 2, panel.width - 36, editH - 4 };
+    cy += editH;
     DrawCodeLines(c->after, panel.x + 18, cy);
 
-    if (!finished) UiTextBoxUpdate(&codeBox);
-    UiTextBoxDraw(&codeBox, !finished);
+    EditorUpdate(&codeEd, !finished);
+    EditorDraw(&codeEd, !finished);
 
     // Bottom panel: hint or feedback on the left, buttons on the right
     Rectangle bottom = { 80, 646, 1120, 64 };
     DrawRectangleRounded(bottom, 0.2f, 8, COL_PANEL);
+    PandaMood codeMood = codeSolved ? PANDA_HAPPY : (codeRevealed ? PANDA_IDLE : (attempts > 0 ? PANDA_SAD : (codeHintShown ? PANDA_THINK : PANDA_IDLE)));
+    PandaDraw(92, 650, 56, codeMood, 1.0f);
 
-    if (codeNote[0]) UiDrawWrappedText(codeNote, (Rectangle){ 100, 656, 720, 40 }, 18, codeNoteColor);
-    else             UiDrawText("Type the missing line, then press Enter or Check.", 100, 668, 20, COL_MUTED);
+    if (codeNote[0]) UiDrawWrappedText(codeNote, (Rectangle){ 160, 656, 660, 40 }, 18, codeNoteColor);
+    else             UiDrawText("Type your code (Tab indents). Press Ctrl+Enter or Check.", 160, 668, 20, COL_MUTED);
 
     // One button is the hint first, then (after two wrong tries) the answer
     const char *helpLabel = codeHintShown ? "Answer" : "Show hint";
@@ -632,8 +644,9 @@ static void RunCode(AppState *app)
         return;
     }
 
+    bool ctrlHeld = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
     bool submit = UiButton((Rectangle){ 1020, 653, 170, 50 }, finished ? (hasNext ? "Next" : "See result") : "Check", true, 1.0f)
-               || IsKeyPressed(KEY_ENTER);
+               || (finished ? IsKeyPressed(KEY_ENTER) : (ctrlHeld && IsKeyPressed(KEY_ENTER)));
     if (submit)
     {
         if (!finished)
