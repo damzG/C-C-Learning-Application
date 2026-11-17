@@ -57,6 +57,8 @@ set(APP_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/games_3d.c
         ${CMAKE_CURRENT_SOURCE_DIR}/park_bg.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_park.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/focus_audio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/theme.c
 )
 add_executable(C_C___Learning_Application ${APP_SOURCES})
 target_include_directories(C_C___Learning_Application PRIVATE ${CMAKE_SOURCE_DIR})

@@ -121,11 +121,15 @@ static void BDLock(void)
 
 static Color BDColor(int k)
 {
-    static const Color cs[] = {
-        COL_CYAN, COL_ACCENT, COL_DONE, {255,140,66,255}, {170,120,255,255}
-    };
     if (k < 1 || k > 5) return COL_PANEL;
-    return cs[(k - 1) % 5];
+    switch (k)
+    {
+    case 1: return ThemeCyan();
+    case 2: return ThemeAccent();
+    case 3: return ThemeDone();
+    case 4: return (Color){255,140,66,255};
+    default: return (Color){170,120,255,255};
+    }
 }
 
 static bool BDRun(float dt)

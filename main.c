@@ -11,6 +11,7 @@
 #include "theme.h"
 #include "ui.h"
 #include "panda.h"
+#include "focus_audio.h"
 
 // Starts at 1280x720, or smaller when the display cannot show that comfortably.
 static void FitWindowToMonitor(void)
@@ -41,6 +42,8 @@ int main(void)
     SetTargetFPS(60);
     SetWindowMinSize(640, 360);
     FitWindowToMonitor();
+    ThemeLoad();
+    FocusAudioInit();
 
     RenderTexture2D target = LoadRenderTexture(SCREEN_W, SCREEN_H);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
@@ -51,6 +54,7 @@ int main(void)
     while (!WindowShouldClose() && !app.quit)
     {
         float dt = GetFrameTime();
+        FocusAudioUpdate(app.focusMode);
 
         if (IsKeyPressed(KEY_F11)) ToggleBorderlessWindowed();
 
@@ -79,6 +83,7 @@ int main(void)
     }
 
     UnloadRenderTexture(target);
+    FocusAudioShutdown();
     PandaShutdown();
     UiShutdown();
     CloseWindow();

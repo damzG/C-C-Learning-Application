@@ -6,13 +6,30 @@
 #define SCREEN_W 1280
 #define SCREEN_H 720
 
-#define COL_BG      ((Color){ 16, 22, 47, 255 })     // deep navy
-#define COL_PANEL   ((Color){ 28, 35, 68, 255 })     // cards and panels
-#define COL_ACCENT  ((Color){ 255, 211, 0, 255 })    // bright yellow: main actions
-#define COL_CYAN    ((Color){ 96, 165, 255, 255 })   // blue: secondary highlights
-#define COL_MUTED   ((Color){ 160, 168, 200, 255 })
-#define COL_DONE    ((Color){ 40, 214, 140, 255 })
-#define COL_LOCKED  ((Color){ 58, 66, 104, 255 })
-#define COL_ERROR   ((Color){ 255, 99, 110, 255 })
+typedef enum { THEME_DARK = 0, THEME_LIGHT = 1 } AppTheme;
+
+AppTheme ThemeGet(void);
+void ThemeSet(AppTheme theme);
+void ThemeToggle(void);
+bool ThemeLoad(void);
+bool ThemeSave(void);
+
+Color ThemeBg(void);
+Color ThemePanel(void);
+Color ThemeAccent(void);
+Color ThemeCyan(void);
+Color ThemeMuted(void);
+Color ThemeDone(void);
+Color ThemeLocked(void);
+Color ThemeError(void);
+
+#define COL_BG      ThemeBg()
+#define COL_PANEL   ThemePanel()
+#define COL_ACCENT  ThemeAccent()
+#define COL_CYAN    ThemeCyan()
+#define COL_MUTED   ThemeMuted()
+#define COL_DONE    ThemeDone()
+#define COL_LOCKED  ThemeLocked()
+#define COL_ERROR   ThemeError()
 
 #endif

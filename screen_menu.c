@@ -1,8 +1,10 @@
 #include "screens.h"
 #include "theme.h"
+#include "focus_audio.h"
 #include "ui.h"
 #include "avatar_draw.h"
 #include "park_bg.h"
+#include "theme.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -65,6 +67,15 @@ void ScreenMenuRun(AppState *app, float dt)
     if (UiButton((Rectangle){ col1, by + step * 3, bw, bh }, "C^2 Park & Dashboard", true, fade)) AppGoTo(app, SCREEN_PARK);
 
     if (UiButton((Rectangle){ col0, by + step * 4, bw, bh }, "Quit Application", true, fade)) app->quit = true;
+    if (UiButton((Rectangle){ 1020, 660, 230, 42 },
+                  ThemeGet() == THEME_DARK ? "Light Mode  [sun]" : "Dark Mode  [moon]", true, fade))
+        ThemeToggle();
+    if (UiButton((Rectangle){ 780, 660, 230, 42 },
+                  app->focusMode ? "Focus Music: ON  [pause]" : "Focus Music: OFF  [play]", true, fade))
+    {
+        app->focusMode = !app->focusMode;
+        FocusAudioSetEnabled(app->focusMode);
+    }
 
     UiDrawText("v0.4  park · dashboard · learn · play", 20, SCREEN_H - 30, 18, Fade(COL_MUTED, fade));
 }

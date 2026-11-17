@@ -1,6 +1,7 @@
 #include "app.h"
 #include "screens.h"
 #include "ui.h"
+#include "theme.h"
 
 #include "raylib.h"
 
@@ -10,6 +11,8 @@ void AppInit(AppState *app)
     app->activeLevel = 0;
     app->activeProblem = 0;
     app->quit = false;
+    app->focusMode = false;
+    ThemeLoad();
 
     if (!AccountsLoad(&app->accounts, ACCOUNTS_FILE))
     {

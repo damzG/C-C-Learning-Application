@@ -27,6 +27,7 @@ typedef struct {
     int activeLevel;   // level being played in the lesson screen
     int activeProblem; // problem open in the code practice screen
     bool quit;
+    bool focusMode;
 } AppState;
 
 void AppInit(AppState *app);

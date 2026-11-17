@@ -103,8 +103,18 @@ static int ScaledSize(int size)
     return (int)((float)size * TEXT_SCALE + 0.5f);
 }
 
+static Color UiAdaptiveTextColor(Color color)
+{
+    if (ThemeGet() == THEME_LIGHT &&
+        color.r == RAYWHITE.r && color.g == RAYWHITE.g &&
+        color.b == RAYWHITE.b && color.a == RAYWHITE.a)
+        return (Color){30,38,66,255};
+    return color;
+}
+
 static void DrawWithStyle(const char *text, int x, int y, int size, Color color, FontStyle style)
 {
+    color = UiAdaptiveTextColor(color);
     int drawSize = ScaledSize(size);
     const CachedFont *cf = GetCachedFont(drawSize, style);
     DrawTextEx(cf->font, text, (Vector2){ (float)x, (float)y }, (float)drawSize, cf->spacing, color);
