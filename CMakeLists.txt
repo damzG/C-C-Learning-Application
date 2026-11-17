@@ -20,36 +20,45 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(raylib)
 
 # Logic with no raylib dependency, shared by the app and the tests
-add_library(core STATIC
-        account.c
-        levels.c
-        questions.c
-        problems.c
-        judge.c
-        practice_progress.c
-        avatar.c
+set(CORE_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/account.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/levels.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/questions.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/problems.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/judge.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/practice_progress.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/avatar.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/explore_content.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/study_content.c
 )
+add_library(core STATIC ${CORE_SOURCES})
 target_include_directories(core PUBLIC ${CMAKE_SOURCE_DIR})
 
 # The game. Only main.c may define main(): test_*.c files are separate programs below.
-add_executable(C_C___Learning_Application
-        main.c
-        app.c
-        ui.c
-        editor.c
-        avatar_draw.c
-        panda.c
-        screen_loading.c
-        screen_menu.c
-        screen_profiles.c
-        screen_create.c
-        screen_map.c
-        screen_lesson.c
-        screen_puzzles.c
-        screen_practice.c
-        screen_code.c
-        panda.c
+set(APP_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/main.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/app.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ui.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/editor.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/avatar_draw.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/panda.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_loading.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_menu.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_profiles.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_create.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_map.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_lesson.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_puzzles.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_practice.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_code.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_explore.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_study.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/games_algo.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/games_3d.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/park_bg.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_park.c
 )
+add_executable(C_C___Learning_Application ${APP_SOURCES})
 target_include_directories(C_C___Learning_Application PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(C_C___Learning_Application PRIVATE core raylib)
 

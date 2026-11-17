@@ -14,7 +14,10 @@ typedef enum {
     SCREEN_LESSON,
     SCREEN_PRACTICE,
     SCREEN_CODE,
-    SCREEN_PUZZLES
+    SCREEN_PUZZLES,
+    SCREEN_EXPLORE,
+    SCREEN_STUDY,
+    SCREEN_PARK
 } ScreenId;
 
 typedef struct {

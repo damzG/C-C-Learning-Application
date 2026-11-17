@@ -35,6 +35,9 @@ void AppGoTo(AppState *app, ScreenId screen)
     case SCREEN_PRACTICE: ScreenPracticeEnter(app); break;
     case SCREEN_CODE:     ScreenCodeEnter(app);     break;
     case SCREEN_PUZZLES:  ScreenPuzzlesEnter(app);  break;
+    case SCREEN_EXPLORE:  ScreenExploreEnter(app);  break;
+    case SCREEN_STUDY:    ScreenStudyEnter(app);    break;
+    case SCREEN_PARK:     ScreenParkEnter(app);     break;
     }
 }
 
@@ -51,6 +54,9 @@ void AppRunScreen(AppState *app, float dt)
     case SCREEN_PRACTICE: ScreenPracticeRun(app, dt); break;
     case SCREEN_CODE:     ScreenCodeRun(app, dt);     break;
     case SCREEN_PUZZLES:  ScreenPuzzlesRun(app, dt);  break;
+    case SCREEN_EXPLORE:  ScreenExploreRun(app, dt);  break;
+    case SCREEN_STUDY:    ScreenStudyRun(app, dt);    break;
+    case SCREEN_PARK:     ScreenParkRun(app, dt);     break;
     }
 }
 

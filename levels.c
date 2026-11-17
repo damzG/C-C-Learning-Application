@@ -23,6 +23,19 @@ static const Level LEVELS[] = {
     { 3, "STL Vectors", "Use std::vector as a dynamic array: push_back, size, iterators and loops.", 90 },
     { 3, "STL Lists", "Use std::list, learn when it beats a vector, and traverse it with iterators.", 90 },
     { 3, "STL Maps", "Store key and value pairs with std::map and look values up by key.", 100 },
+    { 3, "CS50 Memory Lab", "Inspired by CS50: use pointers, bytes and heap allocation safely.", 100 },
+    { 3, "W3Schools Functions Lab", "Practise pass-by-value, pass-by-reference and function overloads.", 90 },
+    { 3, "LeetCode Two Pointers", "Solve sorted-array and string problems using opposite-direction pointers.", 110 },
+    { 3, "LeetCode Sliding Window", "Maintain a moving range to solve substring and subarray problems.", 110 },
+    { 3, "LeetCode Binary Search", "Search sorted space and binary-search an answer predicate.", 110 },
+    { 3, "Recursion & Backtracking", "Use a base case, explore choices and undo state safely.", 120 },
+    { 3, "Project Euler Maths", "Solve integer and divisibility problems with efficient C++ loops.", 120 },
+    { 3, "Embedded Memory Lab", "Practise fixed-width integers, bitfields, volatile values and register masks.", 130 },
+    { 4, "Concurrency Basics", "Explore threads, mutexes, atomics and race-condition prevention.", 130 },
+    { 4, "Smart Pointers", "Use unique_ptr and shared_ptr instead of manual ownership when possible.", 120 },
+    { 4, "Design Patterns", "Apply RAII, factory, observer and strategy in small C++ examples.", 130 },
+    { 4, "C Make & CMake", "Build multi-file C/C++ projects with headers, libraries and tests.", 120 },
+    { 4, "Debugging Quest", "Find leaks, crashes, undefined behaviour and off-by-one bugs.", 130 },
     { 4, "Boss Challenge", "Combine pointers, classes and the STL in one final mixed challenge.", 150 }
 };
 

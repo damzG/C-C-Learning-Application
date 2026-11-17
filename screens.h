@@ -31,4 +31,13 @@ void ScreenCodeRun(AppState *app, float dt);
 void ScreenPuzzlesEnter(AppState *app);
 void ScreenPuzzlesRun(AppState *app, float dt);
 
+void ScreenExploreEnter(AppState *app);
+void ScreenExploreRun(AppState *app, float dt);
+
+void ScreenStudyEnter(AppState *app);
+void ScreenStudyRun(AppState *app, float dt);
+
+void ScreenParkEnter(AppState *app);
+void ScreenParkRun(AppState *app, float dt);
+
 #endif

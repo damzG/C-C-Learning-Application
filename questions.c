@@ -251,6 +251,7 @@ const char *QuestionKindName(QuestionKind kind)
 
 int QuestionCount(int level)
 {
+    if (level >= 15) return 3;
     int count = 0;
     for (int i = 0; i < QUESTION_TOTAL; i++)
     {
@@ -269,6 +270,26 @@ const Question *QuestionGet(int level, int index)
         if (QUESTIONS[i].level != level) continue;
         if (seen == index) return &QUESTIONS[i];
         seen++;
+    }
+    if (level >= 15 && index >= 0 && index < 3)
+    {
+        static Question generated[3];
+        const char *opts0[] = {"RAII and clear ownership", "Raw malloc everywhere", "No cleanup", "Undefined behaviour"};
+        const char *opts1[] = {"Amortized O(1)", "Always O(n)", "Always O(1)", "Exponential"};
+        const char *opts1b[] = {"nullptr", "a random address", "the old value", "the deleted object"};
+        generated[0] = (Question){ level, Q_CONCEPT, "Which resource-management idea is safest for C++?",
+            NO_CODE, {opts0[0],opts0[1],opts0[2],opts0[3]}, 0,
+            "RAII acquires resources in constructors and releases them in destructors.",
+            "Look for ownership tied to an object." };
+        generated[1] = (Question){ level, Q_CONCEPT, "A std::vector push_back has which average complexity?",
+            NO_CODE, {opts1[0],opts1[1],opts1[2],opts1[3]}, 0,
+            "Append is amortized O(1); occasional growth takes O(n).",
+            "Most pushes are cheap, but occasional reallocation is not." };
+        generated[2] = (Question){ level, Q_BUG, "After delete p, what should p normally be set to?",
+            NO_CODE, {opts1b[0],opts1b[1],opts1b[2],opts1b[3]}, 0,
+            "Set p to nullptr after delete so accidental dereference is safer.",
+            "Use the safe 'points to nothing' value." };
+        return &generated[index];
     }
     return 0;
 }

@@ -122,7 +122,7 @@ static void DrawLeftPanel(bool ui, bool solved)
     // Hints
     DrawLine((int)x, 396, (int)(x + 406), 396, Fade(COL_MUTED, 0.3f));
     UiDrawText("Hints", (int)x, 404, 18, COL_CYAN);
-    PandaDraw((int)x + 70, 394, 40, hintsShown > 0 ? PANDA_THINK : PANDA_IDLE, 1.0f);
+    PandaDraw((int)x + 70, 394, 64, hintsShown > 0 ? PANDA_THINK : PANDA_IDLE, 1.0f);
 
     float y = 434;
     if (hintsShown == 0)

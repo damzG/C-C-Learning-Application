@@ -1,6 +1,7 @@
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "park_bg.h"
 
 #include <math.h>
 
@@ -32,6 +33,7 @@ void ScreenLoadingRun(AppState *app, float dt)
     float progress = fminf(loadTime / LOAD_DURATION, 1.0f);
     float logoAlpha = fminf(loadTime / 0.8f, 1.0f);
 
+    ParkBgDraw(logoAlpha);
     UiDrawTrack(logoAlpha);
     UiDrawCart(60.0f + progress * (SCREEN_W - 120.0f), logoAlpha);
 

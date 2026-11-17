@@ -1,7 +1,9 @@
-// Puzzle games: Code Order, Bug Hunt and Match Up.
+// Puzzle games: classic puzzles, algorithm games and 3D knowledge games.
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "games_algo.h"
+#include "games_3d.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -415,7 +417,14 @@ static bool MatchWon(const MatchBoard *board)
 // Screen
 // ===========================================================================
 
-typedef enum { MODE_HUB, MODE_ORDER, MODE_BUG, MODE_MATCH } Mode;
+typedef enum {
+    MODE_HUB,
+    MODE_ORDER,
+    MODE_BUG,
+    MODE_MATCH,
+    MODE_ALGO,
+    MODE_3D
+} Mode;
 
 #define ROW_X     190.0f
 #define ROW_W     900.0f
@@ -437,6 +446,7 @@ static const Color WRONG_FILL = { 90, 35, 45, 255 };
 static Mode mode;
 static unsigned int seed;
 static int solvedCount;          // puzzles solved since the app started
+static float hubScroll;
 
 // Code Order
 static int orderIndex;
@@ -487,6 +497,7 @@ void ScreenPuzzlesEnter(AppState *app)
     (void)app;
     if (seed == 0) seed = (unsigned int)time(NULL) | 1u;
     mode = MODE_HUB;
+    hubScroll = 0.0f;
 }
 
 // ---------------------------------------------------------------------------
@@ -518,55 +529,118 @@ static void DrawCodeRow(Rectangle r, int number, const char *text, Color fill, C
 }
 
 // ---------------------------------------------------------------------------
-// Hub
+// Hub — classic + algorithm + 3D games in a scrollable grid
 // ---------------------------------------------------------------------------
+typedef enum { HUB_CLASSIC, HUB_ALGO, HUB_3D } HubKind;
+
+typedef struct {
+    HubKind kind;
+    int id;
+    const char *title;
+    const char *blurb;
+    const char *tag;
+    Color accent;
+} HubCard;
+
+static int BuildHubCards(HubCard *out, int maxOut)
+{
+    int n = 0;
+    if (n < maxOut)
+    {
+        out[n++] = (HubCard){ HUB_CLASSIC, 0, "Code Order",
+            "Swap shuffled lines back into a working program.",
+            "Classic", COL_ACCENT };
+    }
+    if (n < maxOut)
+    {
+        out[n++] = (HubCard){ HUB_CLASSIC, 1, "Bug Hunt",
+            "Click the broken line and learn why it fails.",
+            "Classic", COL_CYAN };
+    }
+    if (n < maxOut)
+    {
+        out[n++] = (HubCard){ HUB_CLASSIC, 2, "Match Up",
+            "Pair each term with its meaning in fewer moves.",
+            "Classic", COL_DONE };
+    }
+    for (int i = 0; i < AlgoGameCount() && n < maxOut; i++)
+    {
+        const AlgoGameInfo *g = AlgoGameGet(i);
+        out[n++] = (HubCard){ HUB_ALGO, (int)g->id, g->title, g->blurb, g->tag, COL_ACCENT };
+    }
+    for (int i = 0; i < Game3dCount() && n < maxOut; i++)
+    {
+        const Game3dInfo *g = Game3dGet(i);
+        out[n++] = (HubCard){ HUB_3D, (int)g->id, g->title, g->blurb, g->tag,
+                              (Color){ 255, 140, 66, 255 } };
+    }
+    return n;
+}
+
 static void RunHub(AppState *app)
 {
-    static const char *titles[3] = { "Code Order", "Bug Hunt", "Match Up" };
-    static const char *blurbs[3] = {
-        "The lines of a program have been shuffled. Swap them back into the right order.",
-        "One line in each snippet is broken. Click the line that contains the bug.",
-        "Flip cards to pair each term with its meaning. Fewer moves is better."
-    };
-    const Color colors[3] = { COL_ACCENT, COL_CYAN, COL_DONE };
-    const int counts[3] = { OrderPuzzleCount(), BugPuzzleCount(), PairSetCount() };
+    HubCard cards[24];
+    int count = BuildHubCards(cards, 24);
 
-    UiDrawCenteredText("Puzzle Games", SCREEN_W / 2, 50, 44, RAYWHITE);
-    UiDrawCenteredText("Put your C and C++ knowledge to work", SCREEN_W / 2, 106, 20, COL_MUTED);
+    UiDrawCenteredText("Puzzle Games", SCREEN_W / 2, 36, 40, RAYWHITE);
+    UiDrawCenteredText("Classic · algorithm arenas · 3D knowledge games  (scroll)", SCREEN_W / 2, 84, 18, COL_MUTED);
+
+    hubScroll -= GetMouseWheelMove() * 48.0f;
+    if (hubScroll < 0) hubScroll = 0;
+
+    const float cardW = 280.0f, cardH = 210.0f, gap = 20.0f;
+    const int cols = 4;
+    float gridW = cols * cardW + (cols - 1) * gap;
+    float startX = (SCREEN_W - gridW) / 2.0f;
+    float startY = 120.0f - hubScroll;
 
     Vector2 mouse = GetMousePosition();
-    for (int i = 0; i < 3; i++)
+    BeginScissorMode(0, 110, SCREEN_W, SCREEN_H - 170);
+    for (int i = 0; i < count; i++)
     {
-        Rectangle r = { 100.0f + i * 370.0f, 180, 340, 340 };
-        bool hovered = CheckCollisionPointRec(mouse, r);
+        int col = i % cols, row = i / cols;
+        Rectangle r = { startX + col * (cardW + gap), startY + row * (cardH + gap), cardW, cardH };
+        if (r.y + r.height < 100 || r.y > SCREEN_H) continue;
 
+        bool hovered = CheckCollisionPointRec(mouse, r) && mouse.y >= 110 && mouse.y <= SCREEN_H - 60;
         DrawRectangleRounded(r, 0.08f, 8, COL_PANEL);
-        DrawRectangleRoundedLinesEx(r, 0.08f, 8, 3.0f, hovered ? colors[i] : Fade(COL_MUTED, 0.4f));
-
-        Vector2 badge = { r.x + r.width / 2, r.y + 70 };
-        DrawCircleV(badge, 38, colors[i]);
-        char num[2] = { (char)('1' + i), '\0' };
-        UiDrawText(num, (int)badge.x - UiMeasureText(num, 40) / 2, (int)badge.y - 20, 40, COL_BG);
-
-        UiDrawCenteredText(titles[i], (int)(r.x + r.width / 2), (int)r.y + 130, 30, RAYWHITE);
-        UiDrawWrappedText(blurbs[i], (Rectangle){ r.x + 28, r.y + 180, r.width - 56, 100 }, 20, COL_MUTED);
-
-        char count[32];
-        snprintf(count, sizeof(count), "%d %s", counts[i], i == 2 ? "sets" : "puzzles");
-        UiDrawCenteredText(count, (int)(r.x + r.width / 2), (int)r.y + 296, 18, colors[i]);
+        DrawRectangleRoundedLinesEx(r, 0.08f, 8, 2.5f, hovered ? cards[i].accent : Fade(COL_MUTED, 0.35f));
+        UiDrawCenteredText(cards[i].title, (int)(r.x + r.width / 2), (int)r.y + 28, 22, RAYWHITE);
+        UiDrawWrappedText(cards[i].blurb, (Rectangle){ r.x + 16, r.y + 70, r.width - 32, 90 }, 16, COL_MUTED);
+        UiDrawCenteredText(cards[i].tag, (int)(r.x + r.width / 2), (int)r.y + 175, 16, cards[i].accent);
 
         if (hovered && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
         {
-            if (i == 0)      StartOrder(0);
-            else if (i == 1) StartBug(0);
-            else             StartMatch(0);
+            EndScissorMode();
+            if (cards[i].kind == HUB_CLASSIC)
+            {
+                if (cards[i].id == 0) StartOrder(0);
+                else if (cards[i].id == 1) StartBug(0);
+                else StartMatch(0);
+            }
+            else if (cards[i].kind == HUB_ALGO)
+            {
+                AlgoGameEnter((AlgoGameId)cards[i].id);
+                mode = MODE_ALGO;
+            }
+            else
+            {
+                Game3dEnter((Game3dId)cards[i].id);
+                mode = MODE_3D;
+            }
             return;
         }
     }
+    EndScissorMode();
 
-    char solved[48];
-    snprintf(solved, sizeof(solved), "Solved this session: %d", solvedCount);
-    UiDrawCenteredText(solved, SCREEN_W / 2, 560, 22, COL_CYAN);
+    float rows = (float)((count + cols - 1) / cols);
+    float maxScroll = rows * (cardH + gap) - (SCREEN_H - 200.0f);
+    if (maxScroll < 0) maxScroll = 0;
+    if (hubScroll > maxScroll) hubScroll = maxScroll;
+
+    char solved[64];
+    snprintf(solved, sizeof(solved), "%d games available · solved this session: %d", count, solvedCount);
+    UiDrawCenteredText(solved, SCREEN_W / 2, SCREEN_H - 42, 18, COL_CYAN);
 
     if (BackPressed()) AppGoTo(app, SCREEN_MENU);
 }
@@ -830,5 +904,11 @@ void ScreenPuzzlesRun(AppState *app, float dt)
     case MODE_ORDER: RunOrder();    break;
     case MODE_BUG:   RunBug();      break;
     case MODE_MATCH: RunMatch(dt);  break;
+    case MODE_ALGO:
+        if (AlgoGameRun(app, dt)) mode = MODE_HUB;
+        break;
+    case MODE_3D:
+        if (Game3dRun(app, dt)) mode = MODE_HUB;
+        break;
     }
 }

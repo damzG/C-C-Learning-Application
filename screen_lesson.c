@@ -477,7 +477,7 @@ static void RunQuestion(AppState *app)
     Rectangle panel = { 80, 646, 1120, 64 };
     DrawRectangleRounded(panel, 0.2f, 8, COL_PANEL);
     PandaMood qMood = answered ? (right[qIndex] ? PANDA_HAPPY : PANDA_SAD) : (hintShown ? PANDA_THINK : PANDA_IDLE);
-    PandaDraw(92, 650, 56, qMood, 1.0f);
+    PandaDraw(92, 650, 72, qMood, 1.0f);
 
     if (!answered)
     {
@@ -620,7 +620,7 @@ static void RunCode(AppState *app)
     Rectangle bottom = { 80, 646, 1120, 64 };
     DrawRectangleRounded(bottom, 0.2f, 8, COL_PANEL);
     PandaMood codeMood = codeSolved ? PANDA_HAPPY : (codeRevealed ? PANDA_IDLE : (attempts > 0 ? PANDA_SAD : (codeHintShown ? PANDA_THINK : PANDA_IDLE)));
-    PandaDraw(92, 650, 56, codeMood, 1.0f);
+    PandaDraw(92, 650, 72, codeMood, 1.0f);
 
     if (codeNote[0]) UiDrawWrappedText(codeNote, (Rectangle){ 160, 656, 660, 40 }, 18, codeNoteColor);
     else             UiDrawText("Type your code (Tab indents). Press Ctrl+Enter or Check.", 160, 668, 20, COL_MUTED);

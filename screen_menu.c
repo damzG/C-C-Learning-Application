@@ -2,6 +2,7 @@
 #include "theme.h"
 #include "ui.h"
 #include "avatar_draw.h"
+#include "park_bg.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -18,6 +19,7 @@ void ScreenMenuRun(AppState *app, float dt)
 {
     fade = fminf(fade + dt * 2.0f, 1.0f);
 
+    ParkBgDraw(0.45f * fade);
     UiDrawTrack(0.5f * fade);
     UiDrawLogo(SCREEN_W / 2, 130, 100, fade);
 
@@ -32,12 +34,14 @@ void ScreenMenuRun(AppState *app, float dt)
         UiDrawText(line, textX, 20, 20, Fade(COL_MUTED, fade));
     }
 
-    float bw = 380.0f, bh = 62.0f;
-    float bx = (SCREEN_W - bw) / 2.0f;
-    float by = 240.0f;
-    float step = 80.0f;
+    float bw = 360.0f, bh = 52.0f;
+    float gap = 14.0f;
+    float col0 = SCREEN_W / 2.0f - bw - gap / 2.0f;
+    float col1 = SCREEN_W / 2.0f + gap / 2.0f;
+    float by = 220.0f;
+    float step = bh + 16.0f;
 
-    if (UiButtonPrimary((Rectangle){ bx, by, bw, bh }, acc ? "Continue Learning" : "Start Learning", true, fade))
+    if (UiButtonPrimary((Rectangle){ col0, by, bw * 2 + gap, bh }, acc ? "Continue Learning" : "Start Learning", true, fade))
     {
         if (acc)                          AppGoTo(app, SCREEN_MAP);
         else if (app->accounts.count > 0) AppGoTo(app, SCREEN_PROFILES);
@@ -48,14 +52,19 @@ void ScreenMenuRun(AppState *app, float dt)
         }
     }
 
-    if (UiButton((Rectangle){ bx, by + step, bw, bh }, acc ? "Switch Profile" : "Profiles / Sign Up", true, fade))
+    if (UiButton((Rectangle){ col0, by + step, bw, bh }, acc ? "Switch Profile" : "Profiles / Sign Up", true, fade))
     {
         AppGoTo(app, app->accounts.count > 0 ? SCREEN_PROFILES : SCREEN_CREATE);
     }
+    if (UiButton((Rectangle){ col1, by + step, bw, bh }, "Code Practice", true, fade)) AppGoTo(app, SCREEN_PRACTICE);
 
-    if (UiButton((Rectangle){ bx, by + step * 2, bw, bh }, "Code Practice", true, fade)) AppGoTo(app, SCREEN_PRACTICE);
-    if (UiButton((Rectangle){ bx, by + step * 3, bw, bh }, "Puzzle Games", true, fade)) AppGoTo(app, SCREEN_PUZZLES);
-    if (UiButton((Rectangle){ bx, by + step * 4, bw, bh }, "Quit", true, fade)) app->quit = true;
+    if (UiButton((Rectangle){ col0, by + step * 2, bw, bh }, "Explore (DSA & CS)", true, fade)) AppGoTo(app, SCREEN_EXPLORE);
+    if (UiButton((Rectangle){ col1, by + step * 2, bw, bh }, "Puzzle Games", true, fade)) AppGoTo(app, SCREEN_PUZZLES);
 
-    UiDrawText("v0.2  early development", 20, SCREEN_H - 30, 18, Fade(COL_MUTED, fade));
+    if (UiButton((Rectangle){ col0, by + step * 3, bw, bh }, "Study Tools", true, fade)) AppGoTo(app, SCREEN_STUDY);
+    if (UiButton((Rectangle){ col1, by + step * 3, bw, bh }, "C^2 Park & Dashboard", true, fade)) AppGoTo(app, SCREEN_PARK);
+
+    if (UiButton((Rectangle){ col0, by + step * 4, bw, bh }, "Quit Application", true, fade)) app->quit = true;
+
+    UiDrawText("v0.4  park · dashboard · learn · play", 20, SCREEN_H - 30, 18, Fade(COL_MUTED, fade));
 }
