@@ -68,7 +68,9 @@ void ScreenMenuRun(AppState *app, float dt)
 
     if (UiButton((Rectangle){ col0, by + step * 4, bw, bh }, "Analytics", true, fade)) AppGoTo(app, SCREEN_ANALYTICS);
     if (UiButton((Rectangle){ col1, by + step * 4, bw, bh }, "Settings", true, fade)) AppGoTo(app, SCREEN_SETTINGS);
-    if (UiButton((Rectangle){ col0, by + step * 5, bw, bh }, "Quit Application", true, fade)) app->quit = true;
+    if (UiButton((Rectangle){ col0, by + step * 5, bw, bh }, "Chess Arena", true, fade)) AppGoTo(app, SCREEN_CHESS);
+    if (UiButton((Rectangle){ col1, by + step * 5, bw, bh }, "Community & Info", true, fade)) AppGoTo(app, SCREEN_COMMUNITY);
+    if (UiButton((Rectangle){ col0, by + step * 6, bw, bh }, "Quit Application", true, fade)) app->quit = true;
     if (UiButton((Rectangle){ 1020, 660, 230, 42 },
                   ThemeGet() == THEME_DARK ? "Light Mode  [sun]" : "Dark Mode  [moon]", true, fade))
         ThemeToggle();

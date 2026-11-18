@@ -3,6 +3,7 @@
 #include "theme.h"
 #include "ui.h"
 #include "explore_content.h"
+#include "explore_diagrams.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -15,13 +16,15 @@ typedef enum {
     EX_TOPICS,
     EX_TOPIC_DETAIL,
     EX_VIZ_PICK,
-    EX_VIZ_RUN
+    EX_VIZ_RUN,
+    EX_DIAGRAM
 } ExMode;
 
 #define VIZ_N 12
 #define GRID 8
 
 static ExMode mode;
+static DiagramCategory activeDiagramCategory = DIAG_CAT_SYS_DESIGN;
 static ExploreCategory category;
 static int topicIndex;
 static float topicScroll;
@@ -521,6 +524,14 @@ static void RunTopics(AppState *app)
     (void)app;
     UiDrawCenteredText(ExploreCategoryName(category), SCREEN_W / 2, 36, 34, RAYWHITE);
 
+    if (category == EXPLORE_SYS && UiButton((Rectangle){ SCREEN_W - 330.0f, 30, 290, 44 }, "Interactive Architecture", true, 1.0f))
+    {
+        ExploreDiagramsInit();
+        activeDiagramCategory = DIAG_CAT_SYS_DESIGN;
+        mode = EX_DIAGRAM;
+        return;
+    }
+
     if (category == EXPLORE_DSA)
     {
         if (UiButtonPrimary((Rectangle){ SCREEN_W - 280.0f, 30, 240, 44 }, "Open Visualisers", true, 1.0f))
@@ -713,6 +724,25 @@ static void RunViz(AppState *app, float dt)
     if (BackBtn()) { vizPlaying = false; mode = EX_VIZ_PICK; }
 }
 
+static void RunDiagram(AppState *app, float dt)
+{
+    (void)app;
+    if (BackBtn()) { mode = EX_TOPICS; return; }
+
+    const char *labels[DIAG_CAT_COUNT] = { "Computer Science", "AI Inference", "Video Streaming" };
+    for (int i = 0; i < DIAG_CAT_COUNT; i++)
+    {
+        Rectangle tab = { 275.0f + i * 245.0f, 72.0f, 225.0f, 40.0f };
+        if (UiButton(tab, labels[i], true, 1.0f) && (int)activeDiagramCategory != i)
+        {
+            activeDiagramCategory = (DiagramCategory)i;
+            ExploreDiagramsInit();
+        }
+    }
+
+    ExploreDiagramsDraw((Rectangle){ 20, 122, SCREEN_W - 40.0f, 580 }, activeDiagramCategory, dt);
+}
+
 void ScreenExploreRun(AppState *app, float dt)
 {
     switch (mode)
@@ -722,5 +752,6 @@ void ScreenExploreRun(AppState *app, float dt)
     case EX_TOPIC_DETAIL: RunTopicDetail(app); break;
     case EX_VIZ_PICK:     RunVizPick(app); break;
     case EX_VIZ_RUN:      RunViz(app, dt); break;
+    case EX_DIAGRAM:      RunDiagram(app, dt); break;
     }
 }

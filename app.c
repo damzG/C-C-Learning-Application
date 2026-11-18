@@ -3,6 +3,8 @@
 #include "ui.h"
 #include "theme.h"
 #include "focus_audio.h"
+#include "chess_game.h"
+#include "community_hub.h"
 
 #include "raylib.h"
 
@@ -48,6 +50,8 @@ void AppGoTo(AppState *app, ScreenId screen)
     case SCREEN_PARK:     ScreenParkEnter(app);     break;
     case SCREEN_ANALYTICS: ScreenAnalyticsEnter(app); break;
     case SCREEN_SETTINGS: ScreenSettingsEnter(app); break;
+    case SCREEN_CHESS: ChessGameEnter(); break;
+    case SCREEN_COMMUNITY: CommunityHubEnter(HUB_TAB_LEADERBOARD); break;
     }
 }
 
@@ -69,7 +73,10 @@ void AppRunScreen(AppState *app, float dt)
     case SCREEN_PARK:     ScreenParkRun(app, dt);     break;
     case SCREEN_ANALYTICS: ScreenAnalyticsRun(app, dt); break;
     case SCREEN_SETTINGS: ScreenSettingsRun(app, dt); break;
+    case SCREEN_CHESS: if (ChessGameRun(app, dt)) AppGoTo(app, SCREEN_MENU); break;
+    case SCREEN_COMMUNITY: if (CommunityHubRun(app, dt)) AppGoTo(app, SCREEN_MENU); break;
     }
+    WalkthroughDrawOverlay();
 }
 
 Account *AppCurrentAccount(AppState *app)

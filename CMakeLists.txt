@@ -59,6 +59,9 @@ set(APP_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/park_bg.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_park.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_insights.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/chess_game.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/explore_diagrams.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/community_hub.c
         ${CMAKE_CURRENT_SOURCE_DIR}/focus_audio.c
         ${CMAKE_CURRENT_SOURCE_DIR}/theme.c
 )

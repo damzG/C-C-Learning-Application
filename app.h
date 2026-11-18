@@ -20,7 +20,9 @@ typedef enum {
     SCREEN_STUDY,
     SCREEN_PARK,
     SCREEN_ANALYTICS,
-    SCREEN_SETTINGS
+    SCREEN_SETTINGS,
+    SCREEN_CHESS,
+    SCREEN_COMMUNITY
 } ScreenId;
 
 typedef struct {
