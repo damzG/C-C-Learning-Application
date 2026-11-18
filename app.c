@@ -2,6 +2,7 @@
 #include "screens.h"
 #include "ui.h"
 #include "theme.h"
+#include "focus_audio.h"
 
 #include "raylib.h"
 
@@ -12,6 +13,10 @@ void AppInit(AppState *app)
     app->activeProblem = 0;
     app->quit = false;
     app->focusMode = false;
+    AccessibilitySettingsLoad(&app->accessibility);
+    ThemeSetColorBlind(app->accessibility.colorBlindPalette);
+    UiSetAccessibilitySettings(&app->accessibility);
+    FocusAudioSetVolume(app->accessibility.musicVolume);
     ThemeLoad();
 
     if (!AccountsLoad(&app->accounts, ACCOUNTS_FILE))
@@ -41,6 +46,8 @@ void AppGoTo(AppState *app, ScreenId screen)
     case SCREEN_EXPLORE:  ScreenExploreEnter(app);  break;
     case SCREEN_STUDY:    ScreenStudyEnter(app);    break;
     case SCREEN_PARK:     ScreenParkEnter(app);     break;
+    case SCREEN_ANALYTICS: ScreenAnalyticsEnter(app); break;
+    case SCREEN_SETTINGS: ScreenSettingsEnter(app); break;
     }
 }
 
@@ -60,6 +67,8 @@ void AppRunScreen(AppState *app, float dt)
     case SCREEN_EXPLORE:  ScreenExploreRun(app, dt);  break;
     case SCREEN_STUDY:    ScreenStudyRun(app, dt);    break;
     case SCREEN_PARK:     ScreenParkRun(app, dt);     break;
+    case SCREEN_ANALYTICS: ScreenAnalyticsRun(app, dt); break;
+    case SCREEN_SETTINGS: ScreenSettingsRun(app, dt); break;
     }
 }
 

@@ -37,6 +37,11 @@ void ScreenExploreRun(AppState *app, float dt);
 void ScreenStudyEnter(AppState *app);
 void ScreenStudyRun(AppState *app, float dt);
 
+void ScreenAnalyticsEnter(AppState *app);
+void ScreenAnalyticsRun(AppState *app, float dt);
+void ScreenSettingsEnter(AppState *app);
+void ScreenSettingsRun(AppState *app, float dt);
+
 void ScreenParkEnter(AppState *app);
 void ScreenParkRun(AppState *app, float dt);
 

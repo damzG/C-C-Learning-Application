@@ -66,7 +66,9 @@ void ScreenMenuRun(AppState *app, float dt)
     if (UiButton((Rectangle){ col0, by + step * 3, bw, bh }, "Study Tools", true, fade)) AppGoTo(app, SCREEN_STUDY);
     if (UiButton((Rectangle){ col1, by + step * 3, bw, bh }, "C^2 Park & Dashboard", true, fade)) AppGoTo(app, SCREEN_PARK);
 
-    if (UiButton((Rectangle){ col0, by + step * 4, bw, bh }, "Quit Application", true, fade)) app->quit = true;
+    if (UiButton((Rectangle){ col0, by + step * 4, bw, bh }, "Analytics", true, fade)) AppGoTo(app, SCREEN_ANALYTICS);
+    if (UiButton((Rectangle){ col1, by + step * 4, bw, bh }, "Settings", true, fade)) AppGoTo(app, SCREEN_SETTINGS);
+    if (UiButton((Rectangle){ col0, by + step * 5, bw, bh }, "Quit Application", true, fade)) app->quit = true;
     if (UiButton((Rectangle){ 1020, 660, 230, 42 },
                   ThemeGet() == THEME_DARK ? "Light Mode  [sun]" : "Dark Mode  [moon]", true, fade))
         ThemeToggle();
@@ -76,6 +78,8 @@ void ScreenMenuRun(AppState *app, float dt)
         app->focusMode = !app->focusMode;
         FocusAudioSetEnabled(app->focusMode);
     }
+    if (app->focusMode && UiButton((Rectangle){780,610,230,42},"Next focus track",true,fade))
+        FocusAudioNextTrack();
 
     UiDrawText("v0.4  park · dashboard · learn · play", 20, SCREEN_H - 30, 18, Fade(COL_MUTED, fade));
 }

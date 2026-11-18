@@ -5,6 +5,7 @@
 // displays) and every screen keeps working, mouse included. Press F11 for full screen.
 
 #include <math.h>
+#include <stddef.h>
 
 #include "raylib.h"
 #include "app.h"
@@ -38,6 +39,12 @@ int main(void)
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
 
     InitWindow(SCREEN_W, SCREEN_H, "C Square Learn");
+    Image appIcon = LoadImage("assets/icon.png");
+    if (appIcon.data != NULL)
+    {
+        SetWindowIcon(appIcon);
+        UnloadImage(appIcon);
+    }
     SetExitKey(KEY_NULL);   // Esc is used for "back", not to quit
     SetTargetFPS(60);
     SetWindowMinSize(640, 360);

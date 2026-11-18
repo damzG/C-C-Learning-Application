@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include "account.h"
+#include "accessibility_settings.h"
 
 typedef enum {
     SCREEN_LOADING,
@@ -17,7 +18,9 @@ typedef enum {
     SCREEN_PUZZLES,
     SCREEN_EXPLORE,
     SCREEN_STUDY,
-    SCREEN_PARK
+    SCREEN_PARK,
+    SCREEN_ANALYTICS,
+    SCREEN_SETTINGS
 } ScreenId;
 
 typedef struct {
@@ -28,6 +31,7 @@ typedef struct {
     int activeProblem; // problem open in the code practice screen
     bool quit;
     bool focusMode;
+    AccessibilitySettings accessibility;
 } AppState;
 
 void AppInit(AppState *app);

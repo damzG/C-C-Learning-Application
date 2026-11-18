@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include "raylib.h"
+#include "accessibility_settings.h"
 
 #define TEXTBOX_LEN 64
 
@@ -46,6 +47,8 @@ void UiTextBoxInit(UiTextBox *box, Rectangle rect, const char *label, const char
 void UiTextBoxClear(UiTextBox *box);
 void UiTextBoxUpdate(UiTextBox *box);
 void UiTextBoxDraw(const UiTextBox *box, bool active);
+
+void UiSetAccessibilitySettings(const AccessibilitySettings *settings);
 
 void UiToast(const char *message);
 void UiToastDraw(float dt);

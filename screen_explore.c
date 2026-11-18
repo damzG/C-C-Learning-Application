@@ -426,7 +426,7 @@ static void BstInsert(int key)
         {
             int left = 2 * idx + 1;
             if (left >= bstN) { bstKeys[bstN++] = key; return; }
-            // if left slot conceptually empty in sparse sense — keep array packed:
+            // if left slot conceptually empty in sparse sense â€” keep array packed:
             // simpler approach: append and note it's a demo tree built by inserts in order
             idx = left;
             if (idx >= bstN) { bstKeys[bstN++] = key; return; }
@@ -443,10 +443,46 @@ static void BstInsert(int key)
     if (bstN < VIZ_N) bstKeys[bstN++] = key;
 }
 
+static void DrawCategoryDiagram(int categoryIndex, Rectangle card, Color tint)
+{
+    const char *diagrams[3][4]={{"CPU","RAM","CACHE",""},{"Client","API","DB",""},{"DATA","TRAIN","MODEL","TEST"}};
+    int row=categoryIndex==EXPLORE_CS?0:categoryIndex==EXPLORE_SYS?1:2;
+    int count=categoryIndex==EXPLORE_AI?4:3;
+    float gap=10,width=(card.width-72-gap*(count-1))/count,x=card.x+36,y=card.y+150;
+    for(int i=0;i<count;i++)
+    {
+        Rectangle box={x+i*(width+gap),y,width,32};
+        DrawRectangleRounded(box,0.2f,4,Fade(tint,0.22f));
+        DrawRectangleRoundedLinesEx(box,0.2f,4,1.5f,tint);
+        UiDrawCenteredText(diagrams[row][i],(int)(box.x+box.width/2),(int)box.y+7,14,RAYWHITE);
+        if(i+1<count){float ax=box.x+box.width+2,bx=ax+gap-4,cy=y+16;DrawLineEx((Vector2){ax,cy},(Vector2){bx,cy},2,tint);DrawTriangle((Vector2){bx,cy},(Vector2){bx-6,cy-4},(Vector2){bx-6,cy+4},tint);}
+    }
+}
+static void DrawTopicDiagram(ExploreCategory cat,int topicIndex,Rectangle panel,Color tint)
+{
+    static const char *labels[3][8][4]={
+        {{"Fetch","Decode","Execute","Write back"},{"Registers","Cache","RAM","Disk"},{"Process A","Scheduler","Process B","Shared OS"},{"Ready","Running","Blocked","Ready"},{"DNS","IP","TCP","Port"},{"Path","Metadata","Blocks","Disk"},{"Source","Compiler","Object","Linker"},{"Bits","Hex","Signed","Integer"}},
+        {{"Client","Request","Server","Response"},{"Users","Balancer","API","Nodes"},{"Request","Cache","Service","Store"},{"App","Query","Index","Database"},{"Key","Shard A","Shard B","Replicas"},{"Producer","Queue","Worker","Result"},{"Partition","Consistency","Availability","Policy"},{"Request","Logs","Metrics","Trace"}},
+        {{"Examples","Features","Model","Prediction"},{"Train","Validate","Tune","Test"},{"Simple","Fit","Generalise","Complex"},{"Input","Layers","Weights","Output"},{"Prediction","Loss","Gradient","Update"},{"Data","Features","Algorithm","Result"},{"Data","Review","Model","Monitor"},{"C/C++","Runtime","Inference","Device"}}
+    };
+    if(cat<EXPLORE_CS||cat>EXPLORE_AI)return;
+    int row=(int)cat-EXPLORE_CS;if(topicIndex<0||topicIndex>=8)return;
+    int count=4;float gap=14,width=(panel.width-72-gap*(count-1))/count;
+    float x=panel.x+36,y=panel.y+310;
+    for(int i=0;i<count;i++)
+    {
+        Rectangle box={x+i*(width+gap),y,width,38};
+        DrawRectangleRounded(box,0.16f,5,Fade(tint,0.2f));
+        DrawRectangleRoundedLinesEx(box,0.16f,5,1.5f,tint);
+        UiDrawCenteredText(labels[row][topicIndex][i],(int)(box.x+box.width/2),(int)box.y+10,15,RAYWHITE);
+        if(i+1<count){float ax=box.x+box.width+2,bx=ax+gap-4,cy=y+19;DrawLineEx((Vector2){ax,cy},(Vector2){bx,cy},2,tint);DrawTriangle((Vector2){bx,cy},(Vector2){bx-6,cy-4},(Vector2){bx-6,cy+4},tint);}
+    }
+}
+
 static void RunHub(AppState *app)
 {
     UiDrawCenteredText("Explore", SCREEN_W / 2, 40, 44, RAYWHITE);
-    UiDrawCenteredText("Inspired by algorithm visualisers — built for C/C++ learners", SCREEN_W / 2, 92, 20, COL_MUTED);
+    UiDrawCenteredText("Inspired by algorithm visualisers â€” built for C/C++ learners", SCREEN_W / 2, 92, 20, COL_MUTED);
 
     const Color colors[4] = { COL_ACCENT, COL_CYAN, COL_DONE, (Color){ 255, 140, 66, 255 } };
     Vector2 mouse = GetMousePosition();
@@ -463,10 +499,11 @@ static void RunHub(AppState *app)
         UiDrawText(ExploreCategoryName((ExploreCategory)i), (int)r.x + 100, (int)r.y + 36, 26, RAYWHITE);
         UiDrawWrappedText(ExploreCategoryBlurb((ExploreCategory)i),
                           (Rectangle){ r.x + 36, r.y + 90, r.width - 72, 70 }, 20, COL_MUTED);
+        if (i >= EXPLORE_CS) DrawCategoryDiagram(i, r, colors[i]);
         char count[40];
         snprintf(count, sizeof(count), "%d topics%s", ExploreTopicCount((ExploreCategory)i),
                  i == EXPLORE_DSA ? " + visualisers" : "");
-        UiDrawText(count, (int)r.x + 36, (int)r.y + 170, 18, colors[i]);
+        UiDrawText(count, (int)r.x + 36, (int)r.y + (i >= EXPLORE_CS ? 185 : 170), 18, colors[i]);
         if (h && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
         {
             category = (ExploreCategory)i;
@@ -533,7 +570,9 @@ static void RunTopicDetail(AppState *app)
 
     Rectangle panel = { 100, 130, SCREEN_W - 200.0f, 460 };
     DrawRectangleRounded(panel, 0.06f, 8, COL_PANEL);
-    UiDrawWrappedText(t->body, (Rectangle){ panel.x + 36, panel.y + 30, panel.width - 72, 360 }, 22, RAYWHITE);
+    bool hasDiagram=category>=EXPLORE_CS;
+    UiDrawWrappedText(t->body, (Rectangle){ panel.x + 36, panel.y + 30, panel.width - 72, hasDiagram?245:360 }, 22, RAYWHITE);
+    if(hasDiagram) DrawTopicDiagram(category,topicIndex,panel,category==EXPLORE_CS?COL_CYAN:category==EXPLORE_SYS?COL_DONE:(Color){255,140,66,255});
     if (t->complexity)
     {
         UiDrawText(t->complexity, (int)panel.x + 36, (int)panel.y + 410, 20, COL_ACCENT);

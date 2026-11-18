@@ -13,6 +13,7 @@ void ThemeSet(AppTheme theme);
 void ThemeToggle(void);
 bool ThemeLoad(void);
 bool ThemeSave(void);
+void ThemeSetColorBlind(bool enabled);
 
 Color ThemeBg(void);
 Color ThemePanel(void);

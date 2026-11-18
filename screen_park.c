@@ -33,6 +33,13 @@ static int chessTurn;
 static int chessMoves;
 static int chessWinner;
 static int scrabbleScore;
+static bool chess3d;
+static char scrabbleWord[8];
+static int scrabbleLen;
+static bool scrabbleSubmitted;
+static bool scrabbleTileUsed[8];
+static int scrabbleTileOrder[8];
+static bool castleWK, castleWQ, castleBK, castleBQ;
 
 static const char *MOTIVATION[] = {
     "The function of good software is to make the complex appear simple. - Grady Booch",
@@ -76,6 +83,7 @@ void ScreenParkEnter(AppState *app)
     chessTurn = 1;
     chessMoves = 0;
     chessWinner = 0;
+    chess3d = true;
     scrabbleScore = 0;
     memset(chessPiece, 0, sizeof(chessPiece));
     for (int c = 0; c < 8; c++)
@@ -87,6 +95,12 @@ void ScreenParkEnter(AppState *app)
     chessPiece[56] = -2; chessPiece[63] = -2;
     chessPiece[4] = 3;
     chessPiece[60] = -3;
+    chessPiece[1] = chessPiece[6] = 4; chessPiece[57] = chessPiece[62] = -4;
+    chessPiece[2] = chessPiece[5] = 5; chessPiece[58] = chessPiece[61] = -5;
+    chessPiece[3] = 6; chessPiece[59] = -6;
+    scrabbleLen = 0; scrabbleSubmitted = false; scrabbleWord[0] = 0;
+    memset(scrabbleTileUsed,0,sizeof(scrabbleTileUsed));
+    castleWK=castleWQ=castleBK=castleBQ=true;
     UiTextBoxInit(&playgroundCode, (Rectangle){100, 170, 720, 430}, "Mini project: C++ playground",
                   "// Write code here, then Build & Run");
     UiTextBoxInit(&communityPost, (Rectangle){100, 560, 760, 44}, "Share a question or joke",
@@ -345,39 +359,96 @@ static void ChessReset(void)
     for(int c=0;c<8;c++){chessPiece[8+c]=1;chessPiece[48+c]=-1;}
     chessPiece[0]=2;chessPiece[7]=2;chessPiece[56]=-2;chessPiece[63]=-2;
     chessPiece[4]=3;chessPiece[60]=-3;
+    chessPiece[1]=chessPiece[6]=4; chessPiece[57]=chessPiece[62]=-4;
+    chessPiece[2]=chessPiece[5]=5; chessPiece[58]=chessPiece[61]=-5;
+    chessPiece[3]=6; chessPiece[59]=-6;
     chessSelected=-1;chessTurn=1;chessMoves=0;chessWinner=0;
+    castleWK=castleWQ=castleBK=castleBQ=true;
+}
+
+static bool ChessSquareAttacked(int square,int bySide)
+{
+    int tr=square/8,tc=square%8;
+    for(int from=0;from<64;from++)
+    {
+        int p=chessPiece[from];
+        if(p==0||((p>0)!=(bySide>0))) continue;
+        int fr=from/8,fc=from%8,dr=tr-fr,dc=tc-fc,kind=abs(p);
+        if(kind==1){int dir=p>0?-1:1;if(dr==dir&&abs(dc)==1)return true;continue;}
+        if(kind==3){if((dr||dc)&&abs(dr)<=1&&abs(dc)<=1)return true;continue;}
+        if(kind==4){if((abs(dr)==2&&abs(dc)==1)||(abs(dr)==1&&abs(dc)==2))return true;continue;}
+        bool diagonal=abs(dr)==abs(dc),straight=(dr==0||dc==0);
+        if((kind==5&&!diagonal)||(kind==2&&!straight)||(kind==6&&!diagonal&&!straight))continue;
+        if(dr==0&&dc==0)continue;
+        int sr=(dr>0)-(dr<0),sc=(dc>0)-(dc<0),r=fr+sr,c=fc+sc,clear=1;
+        while(r!=tr||c!=tc){if(chessPiece[r*8+c]!=0){clear=0;break;}r+=sr;c+=sc;}
+        if(clear)return true;
+    }
+    return false;
+}
+
+static bool ChessInCheck(int side)
+{
+    int king=-1;
+    for(int i=0;i<64;i++)if(chessPiece[i]==(side>0?3:-3)){king=i;break;}
+    return king<0||ChessSquareAttacked(king,-side);
+}
+
+static bool ChessPseudoLegal(int from,int to)
+{
+    int p=chessPiece[from];
+    if(p==0||((p>0)!=(chessTurn>0))||from==to)return false;
+    int fr=from/8,fc=from%8,tr=to/8,tc=to%8,target=chessPiece[to];
+    if(target!=0&&((target>0)==(p>0)))return false;
+    if(abs(target)==3)return false;
+    int kind=abs(p),dr=tr-fr,dc=tc-fc;
+    if(kind==1)
+    {
+        int dir=p>0?-1:1;
+        if(fc==tc&&target==0){if(tr==fr+dir)return true;int start=p>0?6:1;return fr==start&&tr==fr+dir*2&&chessPiece[(fr+dir)*8+fc]==0;}
+        return abs(dc)==1&&tr==fr+dir&&target!=0;
+    }
+    if(kind==3&&dr==0&&abs(dc)==2)
+    {
+        bool white=p>0,kingside=dc>0;
+        bool right=white?(kingside?castleWK:castleWQ):(kingside?castleBK:castleBQ);
+        int home=white?0:7,rookFile=kingside?7:0,kingFile=4;
+        if(fr!=home||fc!=kingFile||tr!=home||!right||chessPiece[home*8+rookFile]!=(white?2:-2)||ChessInCheck(chessTurn))return false;
+        int step=kingside?1:-1;
+        for(int c=fc+step;c!=rookFile;c+=step)if(chessPiece[home*8+c]!=0)return false;
+        if(ChessSquareAttacked(home*8+(fc+step),-chessTurn)||ChessSquareAttacked(to,-chessTurn))return false;
+        return true;
+    }
+    if(kind==3)return abs(dr)<=1&&abs(dc)<=1;
+    if(kind==4)return (abs(dr)==2&&abs(dc)==1)||(abs(dr)==1&&abs(dc)==2);
+    bool diagonal=abs(dr)==abs(dc),straight=(dr==0||dc==0);
+    if(kind==5&&!diagonal)return false;
+    if(kind==2&&!straight)return false;
+    if(kind==6&&!diagonal&&!straight)return false;
+    int sr=(dr>0)-(dr<0),sc=(dc>0)-(dc<0),r=fr+sr,c=fc+sc;
+    while(r!=tr||c!=tc){if(chessPiece[r*8+c]!=0)return false;r+=sr;c+=sc;}
+    return true;
 }
 
 static bool ChessIsLegal(int from,int to)
 {
-    int p=chessPiece[from];
-    if(p==0||((p>0)!=(chessTurn>0))) return false;
-    int fr=from/8,fc=from%8,tr=to/8,tc=to%8;
-    int target=chessPiece[to];
-    if(target!=0&&((target>0)==(p>0))) return false;
-    int kind=p<0?-p:p;
-    if(kind==1)
-    {
-        int dir=p>0?-1:1;
-        if(fc==tc&&target==0)
-        {
-            if(tr==fr+dir) return true;
-            int start=p>0?6:1;
-            return fr==start&&tr==fr+dir*2&&chessPiece[(fr+dir)*8+fc]==0;
-        }
-        if(abs(tc-fc)==1&&tr==fr+dir) return target!=0;
-        return false;
-    }
-    if(kind==2)
-    {
-        if(fr!=tr&&fc!=tc) return false;
-        int dr=(tr>fr)-(tr<fr),dc=(tc>fc)-(tc<fc);
-        int r=fr+dr,c=fc+dc;
-        while(r!=tr||c!=tc){if(chessPiece[r*8+c]!=0)return false;r+=dr;c+=dc;}
-        return true;
-    }
-    if(kind==3) return abs(tr-fr)<=1&&abs(tc-fc)<=1;
-    return false;
+    if(!ChessPseudoLegal(from,to))return false;
+    int moving=chessPiece[from],captured=chessPiece[to],side=chessTurn;
+    chessPiece[to]=moving;chessPiece[from]=0;
+    bool castle=abs(moving)==3&&abs(to-from)==2;
+    if(castle){int row=to/8;bool kingSide=to>from;int rookFrom=row*8+(kingSide?7:0),rookTo=row*8+(kingSide?5:3);chessPiece[rookTo]=chessPiece[rookFrom];chessPiece[rookFrom]=0;}
+    bool legal=!ChessInCheck(side);
+    if(castle){int row=to/8;bool kingSide=to>from;int rookFrom=row*8+(kingSide?7:0),rookTo=row*8+(kingSide?5:3);chessPiece[rookFrom]=chessPiece[rookTo];chessPiece[rookTo]=0;}
+    chessPiece[from]=moving;chessPiece[to]=captured;
+    return legal;
+}
+
+static bool ChessHasLegalMove(int side)
+{
+    int oldTurn=chessTurn;chessTurn=side;
+    for(int from=0;from<64;from++)if(chessPiece[from]&&((chessPiece[from]>0)==(side>0)))
+        for(int to=0;to<64;to++)if(ChessIsLegal(from,to)){chessTurn=oldTurn;return true;}
+    chessTurn=oldTurn;return false;
 }
 
 static const char *ChessPieceText(int piece)
@@ -386,6 +457,9 @@ static const char *ChessPieceText(int piece)
     if(kind==1)return "Pawn";
     if(kind==2)return "Rook";
     if(kind==3)return "King";
+    if(kind==4)return "Knight";
+    if(kind==5)return "Bishop";
+    if(kind==6)return "Queen";
     return "";
 }
 
@@ -398,17 +472,47 @@ static void DrawGames(AppState *app)
     UiDrawCenteredText("Chess - learn while you relax",410,165,24,RAYWHITE);
     float side=44,x0=155,y0=210;
     Vector2 mouse=GetMousePosition();
+    if(chess3d)
+    {
+        BeginScissorMode((int)chess.x,(int)chess.y,(int)chess.width,(int)chess.height);
+        Camera3D cam={(Vector3){11,-14,11},(Vector3){0,0,0},(Vector3){0,1,0},38,CAMERA_PERSPECTIVE};
+        BeginMode3D(cam);
+        for(int row=0;row<8;row++) for(int col=0;col<8;col++)
+        {
+            int idx=row*8+col;
+            float x=(col-3.5f)*1.05f,z=(row-3.5f)*1.05f;
+            Color square=((row+col)%2)?(Color){58,70,110,255}: (Color){226,226,210,255};
+            DrawCubeV((Vector3){x,-0.18f,z},(Vector3){1.0f,0.35f,1.0f},square);
+            DrawCubeWiresV((Vector3){x,-0.18f,z},(Vector3){1.0f,0.35f,1.0f},Fade(BLACK,0.25f));
+            int piece=chessPiece[idx];
+            if(piece!=0)
+            {
+                Color pc=piece>0?(Color){238,240,232,255}:(Color){45,48,68,255};
+                int kind=piece>0?piece:-piece;
+                DrawCylinder((Vector3){x,0.10f,z},0.34f,0.34f,0.32f,16,pc);
+                if(kind==1) DrawSphere((Vector3){x,0.52f,z},0.28f,pc);
+                else if(kind==2) DrawCubeV((Vector3){x,0.55f,z},(Vector3){0.58f,0.58f,0.58f},pc);
+                else DrawCylinder((Vector3){x,0.58f,z},0.22f,0.30f,0.72f,20,pc);
+            }
+        }
+        EndMode3D();
+        EndScissorMode();
+    }
+    if(UiButton((Rectangle){600,624,150,38},chess3d?"2D Board":"3D Board",true,1.0f)) chess3d=!chess3d;
     for(int row=0;row<8;row++) for(int col=0;col<8;col++)
     {
         int idx=row*8+col;
         Rectangle r={x0+col*side,y0+row*side,side,side};
-        DrawRectangleRec(r,(row+col)%2?(Color){70,82,125,255}: (Color){220,220,205,255});
-        if(chessPiece[idx]>0)
-            UiDrawCenteredText(ChessPieceText(chessPiece[idx]),(int)(r.x+r.width/2),(int)r.y+10,14,(Color){35,40,65,255});
-        if(chessPiece[idx]<0)
-            UiDrawCenteredText(ChessPieceText(chessPiece[idx]),(int)(r.x+r.width/2),(int)r.y+10,14,COL_ERROR);
-        if(chessSelected==idx) DrawRectangleRoundedLinesEx(r,0.05f,4,3,COL_ACCENT);
-        else if(chessSelected>=0&&ChessIsLegal(chessSelected,idx))
+        if(!chess3d)
+        {
+            DrawRectangleRec(r,(row+col)%2?(Color){70,82,125,255}: (Color){220,220,205,255});
+            if(chessPiece[idx]>0)
+                UiDrawCenteredText(ChessPieceText(chessPiece[idx]),(int)(r.x+r.width/2),(int)r.y+10,14,(Color){35,40,65,255});
+            if(chessPiece[idx]<0)
+                UiDrawCenteredText(ChessPieceText(chessPiece[idx]),(int)(r.x+r.width/2),(int)r.y+10,14,COL_ERROR);
+            if(chessSelected==idx) DrawRectangleRoundedLinesEx(r,0.05f,4,3,COL_ACCENT);
+        }
+        if(chessSelected>=0&&ChessIsLegal(chessSelected,idx))
             DrawCircle((int)(r.x+r.width/2),(int)(r.y+r.height/2),6,Fade(COL_DONE,0.75f));
         if(CheckCollisionPointRec(mouse,r)&&IsMouseButtonReleased(MOUSE_BUTTON_LEFT)&&chessWinner==0)
         {
@@ -420,13 +524,15 @@ static void DrawGames(AppState *app)
             {
                 if(ChessIsLegal(chessSelected,idx))
                 {
-                    int captured=chessPiece[idx];
-                    chessPiece[idx]=chessPiece[chessSelected];
-                    chessPiece[chessSelected]=0;
-                    chessMoves++;
-                    if(captured<0&&-captured==3) chessWinner=1;
-                    else if(captured>0&&captured==3) chessWinner=-1;
-                    if(chessWinner==0) chessTurn=-chessTurn;
+                    int from=chessSelected,moving=chessPiece[from],captured=chessPiece[idx],side=chessTurn;
+                    bool castle=abs(moving)==3&&abs(idx-from)==2;
+                    if(abs(moving)==3){if(side>0)castleWK=castleWQ=false;else castleBK=castleBQ=false;}
+                    if(abs(moving)==2){if(from==7)castleWK=false;if(from==0)castleWQ=false;if(from==63)castleBK=false;if(from==56)castleBQ=false;}
+                    if(abs(captured)==2){if(idx==7)castleWK=false;if(idx==0)castleWQ=false;if(idx==63)castleBK=false;if(idx==56)castleBQ=false;}
+                    chessPiece[idx]=moving;chessPiece[from]=0;
+                    if(castle){int row=idx/8;bool ks=idx>from;int rf=row*8+(ks?7:0),rt=row*8+(ks?5:3);chessPiece[rt]=chessPiece[rf];chessPiece[rf]=0;}
+                    chessMoves++;chessTurn=-side;
+                    if(!ChessHasLegalMove(chessTurn))chessWinner=ChessInCheck(chessTurn)?side:2;
                     Account *acc=AppCurrentAccount(app);
                     if(acc&&chessMoves==1)
                     {
@@ -440,21 +546,35 @@ static void DrawGames(AppState *app)
         }
     }
     char turnText[80];
-    if(chessWinner!=0) snprintf(turnText,sizeof(turnText),chessWinner>0?"White wins!":"Black wins!");
-    else snprintf(turnText,sizeof(turnText),"Turn: %s  |  Moves: %d",chessTurn>0?"White":"Black",chessMoves);
-    UiDrawCenteredText(turnText,410,596,20,chessWinner!=0?COL_DONE:COL_CYAN);
+    if(chessWinner==2)snprintf(turnText,sizeof(turnText),"Draw by stalemate");
+    else if(chessWinner!=0)snprintf(turnText,sizeof(turnText),"%s wins by checkmate",chessWinner>0?"White":"Black");
+    else snprintf(turnText,sizeof(turnText),"%s to move%s  |  Moves: %d",chessTurn>0?"White":"Black",ChessInCheck(chessTurn)?" - CHECK":"",chessMoves);
+    UiDrawCenteredText(turnText,410,596,20,chessWinner!=0?COL_DONE:ChessInCheck(chessTurn)?COL_ERROR:COL_CYAN);
     if(UiButton((Rectangle){230,630,360,44},"Reset Chess Board",true,1.0f)) ChessReset();
     DrawRectangleRounded(scrabble,0.05f,8,COL_PANEL);
     UiDrawCenteredText("Scrabble Sprint",990,165,24,RAYWHITE);
-    UiDrawWrappedText("Use the letters:\nC  O  D  E  R\n\nBuild a developer word!",(Rectangle){840,220,300,180},24,RAYWHITE);
-    if(UiButtonPrimary((Rectangle){850,430,280,52},"Build WORDS = +72",true,1.0f))
+    UiDrawWrappedText("Use each tile once; duplicate letters are separate tiles.\nWords: CODE, CODER, CORES, RESET, STORE, SECRET",(Rectangle){820,210,340,112},17,RAYWHITE);
+    static const char tiles[]="CODEREST";
+    for(int i=0;i<8;i++)
     {
-        scrabbleScore+=72;UiToast("Scrabble Star points added!");
-        Account *acc=AppCurrentAccount(app);
-        if(acc){AccountAwardBadge(acc,BADGE_SCRABBLE);acc->xp+=20;AppSaveAccounts(app);}
+        Rectangle tile={835+(i%4)*68.0f,335+(i/4)*62.0f,56,50};
+        DrawRectangleRounded(tile,0.15f,5,scrabbleTileUsed[i]?Fade(COL_MUTED,0.3f):COL_CYAN);
+        char letter[2]={tiles[i],0};UiDrawCenteredText(letter,(int)tile.x+28,(int)tile.y+10,24,COL_BG);
+        if(!scrabbleSubmitted&&!scrabbleTileUsed[i]&&scrabbleLen<8&&CheckCollisionPointRec(mouse,tile)&&IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        {scrabbleWord[scrabbleLen++]=tiles[i];scrabbleTileOrder[scrabbleLen-1]=i;scrabbleTileUsed[i]=true;scrabbleWord[scrabbleLen]=0;}
     }
+    char wordLine[40];snprintf(wordLine,sizeof(wordLine),"Your word: %.*s",scrabbleLen,scrabbleWord);UiDrawCenteredText(wordLine,990,470,21,RAYWHITE);
+    if(UiButton((Rectangle){835,500,140,40},"Undo",scrabbleLen>0&&!scrabbleSubmitted,1.0f)){int ti=scrabbleTileOrder[--scrabbleLen];scrabbleTileUsed[ti]=false;scrabbleWord[scrabbleLen]=0;}
+    if(UiButtonPrimary((Rectangle){985,500,150,40},"Score word",scrabbleLen>0&&!scrabbleSubmitted,1.0f))
+    {
+        static const char *valid[]={"CODE","CODER","CORES","RESET","STORE","SECRET"};int pts=0;
+        for(int i=0;i<6;i++)if(strcmp(scrabbleWord,valid[i])==0){pts=scrabbleLen*10;break;}
+        if(pts){scrabbleScore+=pts;UiToast(TextFormat("Valid word! +%d points",pts));scrabbleSubmitted=true;Account *acc=AppCurrentAccount(app);if(acc){AccountAwardBadge(acc,BADGE_SCRABBLE);AppSaveAccounts(app);}}
+        else UiToast("Not in the word list. Try another word.");
+    }
+    if(UiButton((Rectangle){875,545,230,38},"New word",true,1.0f)){scrabbleLen=0;scrabbleWord[0]=0;scrabbleSubmitted=false;memset(scrabbleTileUsed,0,sizeof(scrabbleTileUsed));}
     char score[64];snprintf(score,sizeof(score),"Score: %d",scrabbleScore);
-    UiDrawCenteredText(score,990,540,24,COL_CYAN);
+    UiDrawCenteredText(score,990,598,24,COL_CYAN);
 }
 
 static void DrawChallenges(AppState *app)

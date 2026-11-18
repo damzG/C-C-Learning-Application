@@ -34,6 +34,12 @@ static CachedFont fontCache[FONT_CACHE_MAX];
 static int fontCacheCount = 0;
 static CachedFont fallbackFont;
 static bool fallbackWarned = false;
+static const AccessibilitySettings *uiAccessibility;
+
+void UiSetAccessibilitySettings(const AccessibilitySettings *settings)
+{
+    uiAccessibility = settings;
+}
 
 static const char *FONT_FILES[] = {
     "assets/fonts/Poppins-Regular.ttf",
@@ -100,7 +106,9 @@ static const CachedFont *GetCachedFont(int size, FontStyle style)
 
 static int ScaledSize(int size)
 {
-    return (int)((float)size * TEXT_SCALE + 0.5f);
+    float scale = TEXT_SCALE;
+    if (uiAccessibility) scale *= AccessibilityTextScale(uiAccessibility);
+    return (int)((float)size * scale + 0.5f);
 }
 
 static Color UiAdaptiveTextColor(Color color)

@@ -5,6 +5,7 @@
 #define THEME_FILE "theme.txt"
 
 static AppTheme currentTheme = THEME_DARK;
+static bool colorBlind;
 
 AppTheme ThemeGet(void) { return currentTheme; }
 void ThemeSet(AppTheme theme)
@@ -16,6 +17,7 @@ void ThemeToggle(void)
     currentTheme = (currentTheme == THEME_DARK) ? THEME_LIGHT : THEME_DARK;
     ThemeSave();
 }
+void ThemeSetColorBlind(bool enabled) { colorBlind = enabled; }
 bool ThemeLoad(void)
 {
     FILE *f = fopen(THEME_FILE, "r");
@@ -45,6 +47,7 @@ Color ThemePanel(void)
 }
 Color ThemeAccent(void)
 {
+    if (colorBlind) return currentTheme == THEME_LIGHT ? (Color){0,114,178,255} : (Color){0,114,178,255};
     return currentTheme == THEME_LIGHT ? (Color){205,150,0,255} : (Color){255,211,0,255};
 }
 Color ThemeCyan(void)

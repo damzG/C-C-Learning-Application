@@ -30,6 +30,7 @@ set(CORE_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/avatar.c
         ${CMAKE_CURRENT_SOURCE_DIR}/explore_content.c
         ${CMAKE_CURRENT_SOURCE_DIR}/study_content.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/accessibility_settings.c
 )
 add_library(core STATIC ${CORE_SOURCES})
 target_include_directories(core PUBLIC ${CMAKE_SOURCE_DIR})
@@ -57,9 +58,13 @@ set(APP_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/games_3d.c
         ${CMAKE_CURRENT_SOURCE_DIR}/park_bg.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_park.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_insights.c
         ${CMAKE_CURRENT_SOURCE_DIR}/focus_audio.c
         ${CMAKE_CURRENT_SOURCE_DIR}/theme.c
 )
+if (WIN32)
+    list(APPEND APP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/app_icon.rc)
+endif ()
 add_executable(C_C___Learning_Application ${APP_SOURCES})
 target_include_directories(C_C___Learning_Application PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(C_C___Learning_Application PRIVATE core raylib)

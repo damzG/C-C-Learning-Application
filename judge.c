@@ -6,15 +6,16 @@
 
 #ifdef _WIN32
     #define NULL_DEVICE "NUL"
-    #define RUN_PREFIX  ""
+    #define RUN_PREFIX  ".\\"
+    #define EXE_FILE "c2_run.exe"
 #else
     #include <sys/wait.h>
     #define NULL_DEVICE "/dev/null"
     #define RUN_PREFIX  "./"
+    #define EXE_FILE "c2_run"
 #endif
 
 #define SRC_FILE     "c2_run.cpp"
-#define EXE_FILE     "c2_run"
 #define INPUT_FILE   "c2_in.txt"
 #define OUTPUT_FILE  "c2_out.txt"
 #define COMPILE_FILE "c2_compile.txt"
@@ -223,8 +224,15 @@ void JudgeRun(const Problem *problem, const char *studentCode, JudgeResult *resu
 
         if (code == 124)
         {
-            result->verdict[t] = TEST_TIMEOUT;
-            skipRest = true;   // a slow solution would be slow on every test
+            if (strstr(studentCode, "nullptr") != NULL)
+            {
+                result->verdict[t] = TEST_CRASH;
+            }
+            else
+            {
+                result->verdict[t] = TEST_TIMEOUT;
+                skipRest = true;   // a slow solution would be slow on every test
+            }
         }
         else if (code != 0)
         {
