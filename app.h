@@ -23,6 +23,8 @@ typedef enum {
     SCREEN_SETTINGS,
     SCREEN_CHESS,
     SCREEN_COMMUNITY
+    ,SCREEN_REVISION,
+    SCREEN_TUTORIALS
 } ScreenId;
 
 typedef struct {

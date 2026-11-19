@@ -45,6 +45,8 @@ set(APP_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/panda.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_loading.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_menu.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_revision.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/screen_tutorials.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_profiles.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_create.c
         ${CMAKE_CURRENT_SOURCE_DIR}/screen_map.c

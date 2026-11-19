@@ -44,5 +44,9 @@ void ScreenSettingsRun(AppState *app, float dt);
 
 void ScreenParkEnter(AppState *app);
 void ScreenParkRun(AppState *app, float dt);
+void ScreenRevisionEnter(AppState *app);
+void ScreenRevisionRun(AppState *app, float dt);
+void ScreenTutorialsEnter(AppState *app);
+void ScreenTutorialsRun(AppState *app, float dt);
 
 #endif

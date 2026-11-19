@@ -52,6 +52,8 @@ void AppGoTo(AppState *app, ScreenId screen)
     case SCREEN_SETTINGS: ScreenSettingsEnter(app); break;
     case SCREEN_CHESS: ChessGameEnter(); break;
     case SCREEN_COMMUNITY: CommunityHubEnter(HUB_TAB_LEADERBOARD); break;
+    case SCREEN_REVISION: ScreenRevisionEnter(app); break;
+    case SCREEN_TUTORIALS: ScreenTutorialsEnter(app); break;
     }
 }
 
@@ -75,6 +77,8 @@ void AppRunScreen(AppState *app, float dt)
     case SCREEN_SETTINGS: ScreenSettingsRun(app, dt); break;
     case SCREEN_CHESS: if (ChessGameRun(app, dt)) AppGoTo(app, SCREEN_MENU); break;
     case SCREEN_COMMUNITY: if (CommunityHubRun(app, dt)) AppGoTo(app, SCREEN_MENU); break;
+    case SCREEN_REVISION: ScreenRevisionRun(app, dt); break;
+    case SCREEN_TUTORIALS: ScreenTutorialsRun(app, dt); break;
     }
     WalkthroughDrawOverlay();
 }
